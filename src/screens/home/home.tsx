@@ -1,16 +1,11 @@
 import {
   AspectRatio,
-  Box,
   Container,
   Image,
   SimpleGrid,
   Text,
   VStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
-
-const apps = [];
 
 export const HomeScreen = () => {
   return (
