@@ -43,7 +43,7 @@ export default function AppLoginPage() {
     <>
       <Head>
         {/* Link to tenant-specific manifest */}
-        <link rel="manifest" href={`/apps/${appId}/manifest.json`} />
+        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
       </Head>
 
       <Box h="100vh" w="100vw" bgColor={`${app.colorScheme}.50`}>
