@@ -1,6 +1,6 @@
-// pages/api/apps/[appId]/manifest.js
-export default function handler(req, res) {
-  console.log("here?");
+import { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { appId } = req.query;
 
   res.setHeader("Content-Type", "application/json");
