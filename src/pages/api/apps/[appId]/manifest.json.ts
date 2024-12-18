@@ -1,12 +1,14 @@
+import { apps } from "@/lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { appId } = req.query;
+  const app = apps.find((app) => app.slug === appId);
 
   res.setHeader("Content-Type", "application/json");
   res.status(200).json({
-    name: `PWA ${appId}`,
-    short_name: appId,
+    name: app?.name ?? `PWA ${appId}`,
+    short_name: app?.name ?? appId,
     start_url: `/apps/${appId}/`,
     scope: `/apps/${appId}/`,
     display: "standalone",
