@@ -14,12 +14,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     theme_color: "#000000",
     icons: [
       {
-        src: `/apps/${appId}/icon.png`,
+        src: `/api/apps/${appId}/icon.png`,
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: `/apps/${appId}/icon-512.png`,
+        src: `/api/apps/${appId}/icon-512.png`,
         sizes: "512x512",
         type: "image/png",
       },
