@@ -1,101 +1,54 @@
-import { signIn } from "next-auth/react";
-import {
-  Box,
-  Button,
-  Container,
-  Heading,
-  Input,
-  Stack,
-  FormControl,
-  FormLabel,
-  VStack,
-  Image,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { useRouter } from "next/router";
+import { CreateAppSchema } from "@/validation/app-validation";
+import { useToast } from "@chakra-ui/react";
 import Head from "next/head";
-import { apps } from "@/lib/db";
+import { useCallback } from "react";
+import { z } from "zod";
+import { useRouter } from "next/router";
+import { AppUpsert } from "@/screens/app-upsert";
+import { UpdateAppMutation } from "@/mutations/update-app-mutation";
+import { GetAppQuery } from "@/queries/get-app-query";
 
-export default function AppLoginPage() {
-  const router = useRouter();
-  const { appId } = router.query;
-  const app = apps.find((app) => app.slug === appId);
+export default function EditAppPage() {
+  const { appId } = useRouter().query;
+  const toast = useToast();
+  const appQuery = GetAppQuery.useQuery({ id: appId?.toString() });
+  const createAppMutation = UpdateAppMutation.useMutation({
+    onSuccess: (data) => {
+      toast({
+        status: "success",
+        description: `O aplicativo ${data.name} foi atualizado com sucesso!`,
+      });
+    },
+    onError: () => {
+      toast({
+        status: "error",
+        description:
+          "Não foi possível atualizar o aplicativo. tente novamente mais tarde.",
+      });
+    },
+  });
 
-  console.log("appId", appId);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await signIn("credentials", {
-      email,
-      password,
-      callbackUrl: `/apps/${appId}/dashboard`, // Redirect after login
-    });
-  };
-
-  if (!app) {
-    return <p>Aplicativo não encontrado</p>;
-  }
+  const handleSubmit = useCallback(
+    (formValues: z.infer<typeof CreateAppSchema>) => {
+      if (!appId) throw new Error("`appId` is missing");
+      createAppMutation.mutate({ id: appId.toString(), ...formValues });
+    },
+    [appId],
+  );
 
   return (
     <>
       <Head>
-        {/* Link to tenant-specific manifest */}
-        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
+        <title>{appQuery.data?.name} | Sofistapps</title>
       </Head>
 
-      <Box h="100vh" w="100vw" bgColor={`${app.colorScheme}.50`}>
-        <Container maxW="md" pt={12} centerContent>
-          <VStack w="full" spacing={8}>
-            <Image src={app.logoUrl} maxW="20" />
-            <Heading>{app.name}</Heading>
-            <Box
-              p={8}
-              w="100%"
-              borderWidth={1}
-              borderRadius="lg"
-              boxShadow="lg"
-              bgColor="white"
-            >
-              <form onSubmit={handleSubmit}>
-                <Stack spacing={4}>
-                  <FormControl>
-                    <FormLabel>Email</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="Digite seu e-mail"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel>Password</FormLabel>
-                    <Input
-                      type="password"
-                      placeholder="Digite sua senha"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <Button
-                    type="submit"
-                    colorScheme={app.colorScheme}
-                    size="lg"
-                    fontSize="md"
-                    w="100%"
-                  >
-                    Entrar
-                  </Button>
-                </Stack>
-              </form>
-            </Box>
-          </VStack>
-        </Container>
-      </Box>
+      {appQuery.data && (
+        <AppUpsert
+          onSubmit={handleSubmit}
+          isLoading={createAppMutation.isPending}
+          initialValues={appQuery.data}
+        />
+      )}
     </>
   );
 }
