@@ -32,8 +32,6 @@ const handleGetById = async (
 ) => {
   const { productId } = req.query;
 
-  console.log({ productId });
-
   if (typeof productId !== "string") {
     return res.status(400).json(Errors.BAD_REQUEST);
   }

@@ -1,7 +1,7 @@
 import { PageModel } from "@/models";
 import {
-  CreatePageSchema,
-  UpdatePageSchema,
+  CreatePageServerSchema,
+  UpdatePageServerSchema,
 } from "@/validation/page-validation";
 import { z } from "zod";
 
@@ -21,14 +21,14 @@ const getById = async (id: string) => {
   return page;
 };
 
-const create = async (data: z.infer<typeof CreatePageSchema>) => {
+const create = async (data: z.infer<typeof CreatePageServerSchema>) => {
   const newPage = await PageModel.create(data);
   return newPage;
 };
 
 const updateById = async (
   id: string,
-  data: z.infer<typeof UpdatePageSchema>,
+  data: z.infer<typeof UpdatePageServerSchema>,
 ) => {
   await PageModel.findOneAndUpdate({ _id: id }, data, { new: true });
   const updatedPage = await PageModel.findById(id).lean();

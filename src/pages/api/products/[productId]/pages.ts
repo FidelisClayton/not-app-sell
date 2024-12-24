@@ -16,6 +16,5 @@ export default async function handler(
 
   return match(req)
     .with({ method: "GET" }, () => PageController.handleGetAll(req, res, user))
-    .with({ method: "POST" }, () => PageController.handlePost(req, res, user))
     .otherwise(() => res.status(405).json(Errors.METHOD_NOT_SUPPORTED));
 }

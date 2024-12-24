@@ -1,4 +1,5 @@
 import { attachCookiesToHttpClient } from "@/lib/http";
+import { GetPageQuery } from "@/queries/get-page-query";
 import { GetPagesQuery } from "@/queries/get-pages-query";
 import { GetProductQuery } from "@/queries/get-product-query";
 import { GetProductsQuery } from "@/queries/get-products-query";
@@ -14,8 +15,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const queryClient = new QueryClient();
 
   await GetProductsQuery.fetchQuery(queryClient, { appId });
-  await GetProductQuery.fetchQuery(queryClient, { appId, productId });
-  await GetPagesQuery.fetchQuery(queryClient, { appId, productId });
+  await GetProductQuery.fetchQuery(queryClient, { productId });
+  await GetPagesQuery.fetchQuery(queryClient, { productId });
 
   return {
     props: {

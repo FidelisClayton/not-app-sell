@@ -323,6 +323,18 @@ export const platformTheme = extendTheme(colorsTheme, {
       body: {
         bg: "slate.50",
       },
+      ".block-drop-cursor": {
+        borderLeft: "2px solid blue",
+        margin: "8px 0",
+        height: "16px",
+        width: "100%",
+        display: "block",
+      },
+      ".prosemirror-dropcursor-inline": {
+        bgColor: "red",
+        display: "block",
+        color: "red",
+      },
     },
   },
 });

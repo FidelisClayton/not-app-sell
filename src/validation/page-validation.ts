@@ -28,3 +28,5 @@ export const CreatePageClientSchema = PageSchema.omit({
 
 // Validation schema for updating a Page
 export const UpdatePageServerSchema = PageSchema.partial();
+
+export const UpdatePageClientSchema = PageSchema.partial();

@@ -14,8 +14,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const queryClient = new QueryClient();
 
   await GetProductsQuery.fetchQuery(queryClient, { appId });
-  await GetProductQuery.fetchQuery(queryClient, { appId, productId });
-  await GetPagesQuery.fetchQuery(queryClient, { appId, productId });
+  await GetProductQuery.fetchQuery(queryClient, { productId });
+  await GetPagesQuery.fetchQuery(queryClient, { productId });
 
   return {
     props: {

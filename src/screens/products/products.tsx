@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Container,
   Grid,
   HStack,
   IconButton,
@@ -11,7 +12,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaFile, FaFont, FaImage } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import { ProductUpsertModal } from "@/components/product-upsert-modal";
 import { CreateProductMutation } from "@/mutations/create-product-mutation";
@@ -19,24 +20,59 @@ import { z } from "zod";
 import { CreateProductClientSchema } from "@/models/product-model";
 import { GetProductsQuery } from "@/queries/get-products-query";
 import { useRouter } from "next/router";
-import { FaFont, FaImage, FaVideo, FaVolumeLow } from "react-icons/fa6";
 import { GetPagesQuery } from "@/queries/get-pages-query";
 import { PageUpsertModal } from "@/components/page-upsert-modal";
 import { CreatePageClientSchema } from "@/validation/page-validation";
 import { CreatePageMutation } from "@/mutations/create-page-mutation";
 import { useQueryClient } from "@tanstack/react-query";
+import { GetPageQuery } from "@/queries/get-page-query";
+import { UpdatePageMutation } from "@/mutations/update-page-mutation";
+import { useRef } from "react";
+import { Editor } from "@tiptap/core";
+import { Block, BlockType } from "@/models/block-model";
+import { GetBlocksQuery } from "@/queries/get-blocks-query";
+import { match } from "ts-pattern";
+import { BSON } from "bson";
+import { TextBlock } from "@/components/blocks/text-block";
+import { ImageBlock } from "@/components/blocks/image-block";
+import { FileBlock } from "@/components/blocks/file-block";
+import { CreateBlockMutation } from "@/mutations/create-block-mutation";
+
+const BLOCKS = [
+  {
+    Icon: FaFont,
+    label: "Texto",
+    blockType: BlockType.Text,
+  },
+  {
+    Icon: FaImage,
+    label: "Imagem",
+    blockType: BlockType.Image,
+  },
+  {
+    Icon: FaFile,
+    label: "Arquivo",
+    blockType: BlockType.File,
+  },
+];
 
 export const ProductsScreen = () => {
-  const { appId, productId } = useRouter().query;
+  const { appId, productId, pageId } = useRouter().query;
   const toast = useToast();
   const createProductDisclosure = useDisclosure();
   const createPageDisclosure = useDisclosure();
   const queryClient = useQueryClient();
+  const editorRef = useRef<Editor>(null);
 
   const productsQuery = GetProductsQuery.useQuery({ appId: appId?.toString() });
   const pagesQuery = GetPagesQuery.useQuery({
-    appId: appId?.toString(),
     productId: productId?.toString(),
+  });
+  const pageQuery = GetPageQuery.useQuery({
+    pageId: pageId?.toString(),
+  });
+  const blocksQuery = GetBlocksQuery.useQuery({
+    pageId: pageId?.toString(),
   });
 
   const createProductMutation = CreateProductMutation.useMutation({
@@ -59,7 +95,6 @@ export const ProductsScreen = () => {
     onSuccess: () => {
       GetPagesQuery.invalidateQuery(queryClient, {
         productId: productId?.toString(),
-        appId: appId?.toString(),
       });
       createPageDisclosure.onClose();
       toast({
@@ -71,6 +106,16 @@ export const ProductsScreen = () => {
       toast({
         status: "error",
         description: "Não foi possível criar a página. Tente novamente.",
+      });
+    },
+  });
+
+  const updatePageMutation = UpdatePageMutation.useMutation({});
+
+  const createBlockMutation = CreateBlockMutation.useMutation({
+    onSuccess: () => {
+      GetBlocksQuery.invalidate(queryClient, {
+        pageId: pageId?.toString(),
       });
     },
   });
@@ -90,6 +135,72 @@ export const ProductsScreen = () => {
       productId: productId?.toString(),
     });
   };
+
+  const handleSavePage = () => {
+    const content = editorRef.current?.getHTML();
+
+    if (!content) return;
+
+    updatePageMutation.mutate({
+      pageId: pageId?.toString(),
+      content,
+    });
+  };
+
+  const handleAddBlock = (blockType: BlockType) => {
+    if (!pageId) return;
+
+    const _id = new BSON.ObjectId().id.toString();
+    const index = blocksQuery.data?.length ?? 0;
+    const page = pageId.toString();
+
+    const newBlock = match<BlockType, Block | null>(blockType)
+      .with(BlockType.Text, (type) => ({
+        _id,
+        type,
+        content: "",
+        index,
+        page,
+      }))
+      .with(BlockType.Image, (type) => ({
+        _id,
+        type,
+        page,
+        url: null,
+        index,
+      }))
+      .with(BlockType.File, (type) => ({
+        _id,
+        type,
+        page,
+        url: null,
+        index,
+        fileName: null,
+        fileSize: null,
+      }))
+      .otherwise(() => null);
+
+    if (!newBlock) return;
+
+    createBlockMutation.mutate({
+      ...newBlock,
+      pageId: pageId?.toString(),
+    });
+
+    GetBlocksQuery.setQueryData(
+      queryClient,
+      { pageId: pageId?.toString() },
+      (existingBlocks = []) => {
+        if (!pageId?.toString()) return existingBlocks;
+
+        if (!newBlock) return existingBlocks;
+
+        return [...existingBlocks, newBlock];
+      },
+    );
+  };
+
+  console.log(blocksQuery.data);
 
   return (
     <>
@@ -131,13 +242,15 @@ export const ProductsScreen = () => {
           <Button>Produtos</Button>
         </HStack>
 
-        <Box />
+        <Button onClick={handleSavePage} variant="solidDark">
+          Salvar
+        </Button>
       </HStack>
 
       <Grid
         gridTemplateColumns="300px 200px 1fr 200px"
-        backgroundImage="radial-gradient(circle at 1px 1px, #0000003f 1px, transparent 0)"
-        backgroundSize="20px 20px"
+        bgColor="gray.50"
+        alignItems="flex-start"
       >
         <VStack
           w="full"
@@ -209,99 +322,72 @@ export const ProductsScreen = () => {
           </Box>
         </VStack>
 
-        <HStack w="full">
-          <Text>Content</Text>
-        </HStack>
+        <Container
+          mx="auto"
+          maxW="lg"
+          mt="4"
+          boxShadow="md"
+          borderRadius="md"
+          bgColor="white"
+        >
+          <VStack w="full" minH="20" px="4" py="8">
+            {blocksQuery.data?.map((block) =>
+              match(block)
+                .with({ type: BlockType.Text }, (block) => (
+                  <TextBlock key={block._id} block={block} />
+                ))
+                .with({ type: BlockType.Image }, (block) => (
+                  <ImageBlock key={block._id} block={block} />
+                ))
+                .with({ type: BlockType.File }, (block) => (
+                  <FileBlock key={block._id} block={block} />
+                ))
+                .otherwise(() => null),
+            )}
+          </VStack>
+        </Container>
 
         <VStack
           w="full"
-          boxShadow="md"
-          py="4"
-          spacing={1}
-          h="100vh"
           bgColor="white"
+          h="full"
+          boxShadow="md"
           alignItems="stretch"
+          py={4}
         >
-          <Button
-            borderRadius="0"
-            leftIcon={
-              <Box
-                bgColor="gray.100"
-                borderRadius="md"
-                px="1.5"
-                fontSize="xs"
-                py="1.5"
-              >
-                <FaFont />
-              </Box>
-            }
-            variant="ghost"
-            justifyContent="flex-start"
-            fontWeight="normal"
+          <Text
+            textTransform="uppercase"
             fontSize="sm"
+            px={4}
+            fontWeight="semibold"
+            color="gray.500"
           >
-            <Text>Texto</Text>
-          </Button>
-
-          <Button
-            leftIcon={
-              <Box
-                bgColor="gray.100"
-                borderRadius="md"
-                px="1.5"
-                fontSize="xs"
-                py="1.5"
-              >
-                <FaImage />
-              </Box>
-            }
-            variant="ghost"
-            justifyContent="flex-start"
-            fontWeight="normal"
-            fontSize="sm"
-          >
-            <Text>Imagem</Text>
-          </Button>
-
-          <Button
-            leftIcon={
-              <Box
-                bgColor="gray.100"
-                borderRadius="md"
-                px="1.5"
-                fontSize="xs"
-                py="1.5"
-              >
-                <FaVideo />
-              </Box>
-            }
-            variant="ghost"
-            justifyContent="flex-start"
-            fontWeight="normal"
-            fontSize="sm"
-          >
-            <Text>Video</Text>
-          </Button>
-
-          <Button
-            leftIcon={
-              <Box
-                bgColor="gray.100"
-                borderRadius="md"
-                px="1.5"
-                fontSize="xs"
-                py="1.5"
-              >
-                <FaVolumeLow />
-              </Box>
-            }
-            variant="ghost"
-            justifyContent="flex-start"
-            fontWeight="normal"
-            fontSize="sm"
-          >
-            <Text>Audio</Text>
-          </Button>
+            Blocos
+          </Text>
+          {BLOCKS.map((block) => (
+            <Button
+              variant="ghost"
+              w="full"
+              justifyContent="flex-start"
+              fontWeight="normal"
+              borderRadius="none"
+              draggable
+              onClick={() => handleAddBlock(block.blockType)}
+              leftIcon={
+                <Box
+                  p={1.5}
+                  bgColor="slate.50"
+                  borderRadius="sm"
+                  color="gray.500"
+                  fontSize="sm"
+                >
+                  <block.Icon />
+                </Box>
+              }
+            >
+              {block.label}
+            </Button>
+          ))}
         </VStack>
       </Grid>
     </>

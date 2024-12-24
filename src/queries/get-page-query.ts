@@ -1,4 +1,4 @@
-import { ProductDocument } from "@/models/product-model";
+import { PageDocument } from "@/models";
 import { AxiosError } from "axios";
 import {
   QueryClient,
@@ -7,16 +7,18 @@ import {
 } from "@tanstack/react-query";
 import { http } from "@/lib/http";
 
-export namespace GetProductQuery {
-  export type Variables = { productId?: string };
-  export type Data = ProductDocument;
+export namespace GetPageQuery {
+  export type Variables = {
+    pageId?: string;
+  };
+  export type Data = PageDocument;
   export type Error = AxiosError;
 
-  export const key = ["products"];
+  export const key = ["pages"];
   export const getKey = (variables: Variables) => [...key, variables];
 
-  export const queryFn = ({ productId }: Variables) =>
-    http.get<Data>(`/products/${productId}`).then((res) => res.data);
+  export const queryFn = ({ pageId }: Variables) =>
+    http.get<Data>(`/pages/${pageId}`).then((res) => res.data);
 
   export const useQuery = (
     variables: Variables,
@@ -26,7 +28,7 @@ export namespace GetProductQuery {
       ...options,
       queryKey: getKey(variables),
       queryFn: () => queryFn(variables),
-      enabled: Boolean(variables.productId) && options?.enabled !== false,
+      enabled: Boolean(variables.pageId) && options?.enabled !== false,
     });
   };
 
@@ -38,5 +40,12 @@ export namespace GetProductQuery {
       queryKey: getKey(variables),
       queryFn: () => queryFn(variables),
     });
+  };
+
+  export const invalidateQuery = (
+    queryClient: QueryClient,
+    variables: Variables,
+  ) => {
+    return queryClient.invalidateQueries({ queryKey: getKey(variables) });
   };
 }

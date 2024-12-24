@@ -7,7 +7,6 @@ import { ProductsScreen } from "@/screens/products";
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
   const appId = context.params?.appId?.toString();
-  const productId = context.params?.productId?.toString();
 
   const queryClient = new QueryClient();
 

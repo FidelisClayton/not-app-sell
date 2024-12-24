@@ -1,5 +1,54 @@
 import mongoose, { model, Model, Schema } from "mongoose";
 
+export enum BlockType {
+  Text = "Text",
+  File = "File",
+  Image = "Image",
+  VideoEmbed = "VideoEmbed",
+  Audio = "Audio",
+}
+
+interface BlockLike {
+  _id: string;
+  index: number;
+}
+
+export interface TextBlock extends BlockLike {
+  type: BlockType.Text;
+  content: string;
+}
+
+export interface FileBlock extends BlockLike {
+  type: BlockType.File;
+  url: string;
+  description?: string;
+}
+
+export interface ImageBlock extends BlockLike {
+  type: BlockType.Image;
+  url: string;
+  description?: string;
+}
+
+export interface VideoEmbedBlock extends BlockLike {
+  type: BlockType.VideoEmbed;
+  url: string;
+  provider: string;
+}
+
+export interface AudioBlock {
+  type: BlockType.Audio;
+  url: string;
+  description?: string;
+}
+
+export type Block =
+  | TextBlock
+  | FileBlock
+  | ImageBlock
+  | VideoEmbedBlock
+  | AudioBlock;
+
 export type PageDocument = {
   _id: string;
   product: Schema.Types.ObjectId;
