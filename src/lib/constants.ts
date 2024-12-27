@@ -1,0 +1,1 @@
+export const INDEX_DECIMAL_POINT = 0.00000000001;

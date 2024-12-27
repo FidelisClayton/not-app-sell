@@ -1,4 +1,3 @@
-import { http } from "@/lib/http";
 import { ImageBlock as TImageBlock } from "@/models/block-model";
 import { CreateUploadUrlMutation } from "@/mutations/create-upload-url-mutation";
 import { UpdateBlockMutation } from "@/mutations/update-block-mutation";
@@ -6,7 +5,8 @@ import { UploadFileMutation } from "@/mutations/upload-file-mutation";
 import { GetBlocksQuery } from "@/queries/get-blocks-query";
 import { AspectRatio, Box, Image, Input, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useRef } from "react";
+import { BlockWrapper } from "../block-wrapper";
 
 export type ImageBlockProps = {
   block: TImageBlock;
@@ -43,6 +43,7 @@ export const ImageBlock = ({ block }: ImageBlockProps) => {
         url: objectUrl,
         blockId: block._id,
         description: block.description ?? "",
+        page: block.page,
       } as Partial<TImageBlock & { blockId: string }>);
 
       await GetBlocksQuery.invalidate(queryClient, {
@@ -67,39 +68,41 @@ export const ImageBlock = ({ block }: ImageBlockProps) => {
   };
 
   return (
-    <Box w="full">
-      {block.url ? (
-        <Image src={block.url} />
-      ) : (
-        <AspectRatio w="full" ratio={16 / 9}>
-          <VStack
-            onClick={handleClick}
-            w="full"
-            alignItems="center"
-            justifyContent="center"
-            spacing={0}
-            bgColor="slate.100"
-            borderRadius="md"
-            cursor="pointer"
-          >
-            <Text textAlign="center" w="full">
-              Arraste sua imagem aqui
-            </Text>
-            <Text textAlign="center" fontSize="sm" w="full">
-              ou clique para fazer upload
-            </Text>
-          </VStack>
-        </AspectRatio>
-      )}
-      {block.description && <Text size="xs">{block.description}</Text>}
+    <BlockWrapper block={block}>
+      <Box w="full">
+        {block.url ? (
+          <Image src={block.url} />
+        ) : (
+          <AspectRatio w="full" ratio={16 / 9}>
+            <VStack
+              onClick={handleClick}
+              w="full"
+              alignItems="center"
+              justifyContent="center"
+              spacing={0}
+              bgColor="slate.100"
+              borderRadius="md"
+              cursor="pointer"
+            >
+              <Text textAlign="center" w="full">
+                Arraste sua imagem aqui
+              </Text>
+              <Text textAlign="center" fontSize="sm" w="full">
+                ou clique para fazer upload
+              </Text>
+            </VStack>
+          </AspectRatio>
+        )}
+        {block.description && <Text size="xs">{block.description}</Text>}
 
-      <Input
-        ref={inputRef}
-        onChange={handleChange}
-        type="file"
-        position="absolute"
-        display="none"
-      />
-    </Box>
+        <Input
+          ref={inputRef}
+          onChange={handleChange}
+          type="file"
+          position="absolute"
+          display="none"
+        />
+      </Box>
+    </BlockWrapper>
   );
 };

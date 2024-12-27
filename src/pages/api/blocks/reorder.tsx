@@ -11,9 +11,9 @@ export default async function handler(
   await connectDB();
 
   return match(req.method)
-    .with("POST", () => BlockController.handlePost(req, res))
+    .with("PUT", () => BlockController.handleReorder(req, res))
     .otherwise(() => {
-      res.setHeader("Allow", ["POST"]);
+      res.setHeader("Allow", ["PUT"]);
       return res.status(405).json(Errors.METHOD_NOT_SUPPORTED);
     });
 }

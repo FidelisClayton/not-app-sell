@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Grid,
+  Heading,
   HStack,
   IconButton,
   Image,
@@ -12,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { FaArrowLeft, FaFile, FaFont, FaImage } from "react-icons/fa";
+import { FaArrowLeft, FaFile, FaFont, FaImage, FaSadCry } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import { ProductUpsertModal } from "@/components/product-upsert-modal";
 import { CreateProductMutation } from "@/mutations/create-product-mutation";
@@ -37,6 +38,9 @@ import { TextBlock } from "@/components/blocks/text-block";
 import { ImageBlock } from "@/components/blocks/image-block";
 import { FileBlock } from "@/components/blocks/file-block";
 import { CreateBlockMutation } from "@/mutations/create-block-mutation";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { BlockMenuItem } from "@/components/block-menu-item";
 
 const BLOCKS = [
   {
@@ -55,6 +59,8 @@ const BLOCKS = [
     blockType: BlockType.File,
   },
 ];
+
+const TOP_BAR_HEIGHT = 57;
 
 export const ProductsScreen = () => {
   const { appId, productId, pageId } = useRouter().query;
@@ -150,7 +156,7 @@ export const ProductsScreen = () => {
   const handleAddBlock = (blockType: BlockType) => {
     if (!pageId) return;
 
-    const _id = new BSON.ObjectId().id.toString();
+    const _id = new BSON.ObjectId().toString("hex");
     const index = blocksQuery.data?.length ?? 0;
     const page = pageId.toString();
 
@@ -200,10 +206,8 @@ export const ProductsScreen = () => {
     );
   };
 
-  console.log(blocksQuery.data);
-
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       {createProductDisclosure.isOpen && (
         <ProductUpsertModal
           onSubmit={handleProductCreate}
@@ -238,7 +242,9 @@ export const ProductsScreen = () => {
         />
 
         <HStack>
-          <Button variant="ghost">Design</Button>
+          <Button variant="ghost" as={Link} href={`/apps/${appId?.toString()}`}>
+            Design
+          </Button>
           <Button>Produtos</Button>
         </HStack>
 
@@ -255,16 +261,25 @@ export const ProductsScreen = () => {
         <VStack
           w="full"
           boxShadow="md"
-          px="4"
-          py="4"
           spacing={6}
-          h="100vh"
+          h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
           bgColor="white"
           alignItems="stretch"
         >
           {productsQuery.data?.map((product) => (
-            <HStack key={product._id} cursor="pointer" w="full">
-              <Image maxW="12" src={product.coverUrl} />
+            <HStack
+              as={Link}
+              href={`/apps/${appId?.toString()}/products/${product._id}`}
+              key={product._id}
+              cursor="pointer"
+              w="full"
+              px="4"
+              py="2"
+              bgColor={
+                product._id === productId?.toString() ? "slate.100" : undefined
+              }
+            >
+              <Image borderRadius="md" maxW="12" src={product.coverUrl} />
               <VStack spacing={0}>
                 <Text>{product.name}</Text>
                 <Text>{product.description}</Text>
@@ -276,6 +291,7 @@ export const ProductsScreen = () => {
             onClick={createProductDisclosure.onOpen}
             leftIcon={<AiOutlinePlus />}
             fontSize="sm"
+            borderRadius="none"
           >
             Novo produto
           </Button>
@@ -287,9 +303,9 @@ export const ProductsScreen = () => {
           px="0"
           pb="4"
           spacing={1}
-          h="100vh"
           bgColor="white"
           alignItems="stretch"
+          h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
         >
           {pagesQuery.data?.map((page) => (
             <Button
@@ -299,6 +315,9 @@ export const ProductsScreen = () => {
               borderRadius="0"
               justifyContent="flex-start"
               fontWeight="normal"
+              bgColor={
+                page._id === pageId?.toString() ? "slate.100" : undefined
+              }
             >
               <Text>{page.name}</Text>
             </Button>
@@ -316,41 +335,68 @@ export const ProductsScreen = () => {
               leftIcon={<AiOutlinePlus />}
               fontSize="sm"
               w="full"
+              borderRadius="none"
             >
               Nova página
             </Button>
           </Box>
         </VStack>
 
-        <Container
-          mx="auto"
-          maxW="lg"
-          mt="4"
-          boxShadow="md"
-          borderRadius="md"
-          bgColor="white"
+        <Box
+          w="full"
+          h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
+          overflowY="auto"
+          py="8"
         >
-          <VStack w="full" minH="20" px="4" py="8">
-            {blocksQuery.data?.map((block) =>
-              match(block)
-                .with({ type: BlockType.Text }, (block) => (
-                  <TextBlock key={block._id} block={block} />
-                ))
-                .with({ type: BlockType.Image }, (block) => (
-                  <ImageBlock key={block._id} block={block} />
-                ))
-                .with({ type: BlockType.File }, (block) => (
-                  <FileBlock key={block._id} block={block} />
-                ))
-                .otherwise(() => null),
-            )}
-          </VStack>
-        </Container>
+          {blocksQuery.data && (
+            <Container
+              mx="auto"
+              maxW="lg"
+              boxShadow="md"
+              borderRadius="xl"
+              bgColor="white"
+            >
+              <VStack w="full" minH="20" px="4" py="8" spacing={0}>
+                {pageQuery.data && (
+                  <Heading w="full" mb="4">
+                    {pageQuery.data.name}
+                  </Heading>
+                )}
+
+                {blocksQuery.data?.map((block) =>
+                  match(block)
+                    .with({ type: BlockType.Text }, (block) => (
+                      <TextBlock key={block._id} block={block} />
+                    ))
+                    .with({ type: BlockType.Image }, (block) => (
+                      <ImageBlock key={block._id} block={block} />
+                    ))
+                    .with({ type: BlockType.File }, (block) => (
+                      <FileBlock key={block._id} block={block} />
+                    ))
+                    .otherwise(() => null),
+                )}
+
+                {!blocksQuery.data?.length && (
+                  <VStack
+                    w="full"
+                    alignItems="flex-start"
+                    justifyContent="flex-start"
+                  >
+                    <Text color="gray.500" textAlign="left">
+                      Esta página está vazia, adicione blocos para customizá-la.
+                    </Text>
+                  </VStack>
+                )}
+              </VStack>
+            </Container>
+          )}
+        </Box>
 
         <VStack
           w="full"
           bgColor="white"
-          h="full"
+          h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
           boxShadow="md"
           alignItems="stretch"
           py={4}
@@ -365,31 +411,14 @@ export const ProductsScreen = () => {
             Blocos
           </Text>
           {BLOCKS.map((block) => (
-            <Button
-              variant="ghost"
-              w="full"
-              justifyContent="flex-start"
-              fontWeight="normal"
-              borderRadius="none"
-              draggable
-              onClick={() => handleAddBlock(block.blockType)}
-              leftIcon={
-                <Box
-                  p={1.5}
-                  bgColor="slate.50"
-                  borderRadius="sm"
-                  color="gray.500"
-                  fontSize="sm"
-                >
-                  <block.Icon />
-                </Box>
-              }
-            >
-              {block.label}
-            </Button>
+            <BlockMenuItem
+              key={block.blockType}
+              {...block}
+              onClick={handleAddBlock}
+            />
           ))}
         </VStack>
       </Grid>
-    </>
+    </DndProvider>
   );
 };

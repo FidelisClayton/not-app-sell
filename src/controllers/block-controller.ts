@@ -106,10 +106,33 @@ const handleDelete = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
+const handleReorder = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { blockId } = req.body;
+
+  if (typeof blockId !== "string") {
+    return res
+      .status(400)
+      .json({ error: "`blockId` is required and must be a string" });
+  }
+
+  if (typeof req.body.index !== "number") {
+    return res.status(400).json({ error: "`index` is invalid" });
+  }
+
+  try {
+    await BlockRepository.reorderById(blockId, req.body);
+    return res.status(204).end();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to reorder block" });
+  }
+};
+
 export const BlockController = {
   handleGetAllByPage,
   handleGetById,
   handlePost,
   handlePut,
   handleDelete,
+  handleReorder,
 };

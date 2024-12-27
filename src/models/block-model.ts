@@ -38,7 +38,7 @@ export interface VideoEmbedBlock extends BlockLike {
   provider: string;
 }
 
-export interface AudioBlock {
+export interface AudioBlock extends BlockLike {
   type: BlockType.Audio;
   url: string | null;
 }
@@ -61,7 +61,6 @@ const BlockBaseSchema = new Schema(
     index: {
       type: Number,
       required: true,
-      min: 0,
     },
     page: {
       type: Schema.Types.ObjectId,

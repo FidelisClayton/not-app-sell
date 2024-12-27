@@ -7,7 +7,7 @@ const BlockBaseSchema = z.object({
   page: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "`page` must be a valid ObjectId"),
-  index: z.number().min(0, "`index` must be greater than or equal to 0"),
+  index: z.number(),
 });
 
 // Text Block
@@ -60,7 +60,7 @@ const BlockBaseCreateSchema = z.object({
   page: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "`page` must be a valid ObjectId"),
-  index: z.number().min(0, "`index` must be greater than or equal to 0"),
+  index: z.number(),
 });
 
 // Define schemas for each block type without `_id` or timestamps

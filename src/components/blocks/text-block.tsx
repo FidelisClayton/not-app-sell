@@ -1,12 +1,12 @@
 import { TextBlock as TTextBlock } from "@/models/block-model";
 import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Paragraph from "@tiptap/extension-paragraph";
 import { BubbleMenu } from "../page-editor/components/floating-menu";
 import { Box } from "@chakra-ui/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import { UpdateBlockMutation } from "@/mutations/update-block-mutation";
 import { useDebouncedCallback } from "use-debounce";
+import { BlockWrapper } from "../block-wrapper";
 
 export type TextBlockProps = {
   block: TTextBlock;
@@ -15,8 +15,8 @@ export type TextBlockProps = {
 const extensions = [
   StarterKit.configure({
     gapcursor: false,
+    dropcursor: false,
   }),
-  Paragraph,
   Placeholder.configure({
     placeholder: "Digite algo aqui...",
   }),
@@ -31,6 +31,7 @@ export const TextBlock = ({ block }: TextBlockProps) => {
         blockId: block._id,
         type: block.type,
         content: editor.getHTML(),
+        page: block.page,
       } as Partial<TTextBlock>);
     },
     500,
@@ -48,40 +49,45 @@ export const TextBlock = ({ block }: TextBlockProps) => {
   if (!editor) return null;
 
   return (
-    <Box
-      w="full"
-      sx={{
-        ".tiptap p.is-editor-empty:first-child::before": {
-          color: "#adb5bd",
-          content: "attr(data-placeholder)",
-          float: "left",
-          height: "0",
-          pointerEvents: "none",
-        },
-        ".ProseMirror-focused": {
-          outline: "none",
-        },
-        ".tiptap": {
-          h1: {
-            fontSize: "3xl",
+    <BlockWrapper block={block}>
+      <Box
+        w="full"
+        sx={{
+          ".tiptap p.is-editor-empty:first-child::before": {
+            color: "#adb5bd",
+            content: "attr(data-placeholder)",
+            float: "left",
+            height: "0",
+            pointerEvents: "none",
           },
-          h2: {
-            fontSize: "2xl",
+          ".ProseMirror-focused": {
+            outline: "none",
           },
-          h3: {
-            fontSize: "xl",
+          ".tiptap": {
+            h1: {
+              fontSize: "3xl",
+            },
+            h2: {
+              fontSize: "2xl",
+            },
+            h3: {
+              fontSize: "xl",
+            },
+            h4: {
+              fontSize: "lg",
+            },
+            p: {
+              py: 2,
+            },
+            "ol, ul": {
+              paddingLeft: 4,
+            },
           },
-          h4: {
-            fontSize: "lg",
-          },
-          p: {
-            py: 2,
-          },
-        },
-      }}
-    >
-      <EditorContent editor={editor} />
-      <BubbleMenu editor={editor} />
-    </Box>
+        }}
+      >
+        <EditorContent editor={editor} />
+        <BubbleMenu editor={editor} />
+      </Box>
+    </BlockWrapper>
   );
 };
