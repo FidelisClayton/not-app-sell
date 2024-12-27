@@ -7,7 +7,9 @@ export default async function handler(
   console.log(
     JSON.stringify(
       {
-        req,
+        body: req.body,
+        query: req.query,
+        headers: req.headers,
       },
       null,
       2,
