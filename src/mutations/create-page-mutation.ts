@@ -9,15 +9,13 @@ import { CreatePageClientSchema } from "@/validation/page-validation";
 import { PageDocument } from "@/models";
 
 export namespace CreatePageMutation {
-  export type Variables = { appId?: string; productId?: string } & z.infer<
-    typeof CreatePageClientSchema
-  >;
+  export type Variables = z.infer<typeof CreatePageClientSchema>;
   export type Data = PageDocument;
   export type Error = AxiosError;
 
   export const mutationKey = ["create", "page"];
 
-  export const mutationFn = ({ appId, productId, ...variables }: Variables) =>
+  export const mutationFn = (variables: Variables) =>
     http.post(`/pages`, variables).then((res) => res.data);
 
   export const useMutation = (

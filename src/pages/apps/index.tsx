@@ -101,6 +101,7 @@ export default function AppsPage() {
           <SimpleGrid gridTemplateColumns="1fr 1fr 1fr" gap={4}>
             {appsQuery.data?.map((app) => (
               <HStack
+                key={app._id}
                 as={Link}
                 spacing={3}
                 bgColor="white"

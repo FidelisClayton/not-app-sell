@@ -95,6 +95,7 @@ export const FormatsMenu = ({ editor }: FormatsMenuProps) => {
       <MenuList>
         {MENU_ITEMS.map((item) => (
           <MenuItem
+            key={item.label}
             onClick={() => item.apply(editor)}
             bgColor={item.isActive(editor) ? "purple.100" : undefined}
           >

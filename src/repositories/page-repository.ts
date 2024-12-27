@@ -6,17 +6,11 @@ import {
 import { z } from "zod";
 
 const getAll = async (productId: string) => {
-  return PageModel.find({ product: productId })
-    .select("-__v")
-    .populate({ path: "product", select: "_id name" })
-    .lean();
+  return PageModel.find({ product: productId }).select("-__v").lean();
 };
 
 const getById = async (id: string) => {
-  const page = await PageModel.findById(id)
-    .select("-__v")
-    .populate({ path: "product", select: "_id name" })
-    .lean();
+  const page = await PageModel.findById(id).select("-__v").lean();
 
   return page;
 };

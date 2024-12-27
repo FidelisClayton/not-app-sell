@@ -1,4 +1,4 @@
-import { apps } from "@/lib/db";
+import { apps } from "@/lib/mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import fetch from "node-fetch";
 

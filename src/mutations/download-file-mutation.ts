@@ -1,11 +1,8 @@
-import { CreateAppSchema } from "@/validation/app-validation";
-import { z } from "zod";
 import {
   UseMutationOptions,
   useMutation as useRQMutation,
 } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { AppDocument } from "@/models/app-model";
 
 export namespace DownloadFileMutation {
   export type Variables = { fileUrl: string; fileName: string };

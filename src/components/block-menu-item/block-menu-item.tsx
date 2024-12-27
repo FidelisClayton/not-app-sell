@@ -7,18 +7,20 @@ export type BlockMenuItemProps = {
   blockType: BlockType;
   Icon: FunctionComponent;
   label: ReactNode;
-  onClick: (blockType: BlockType) => void;
+  settings?: Record<string, any>;
+  onClick: (blockType: BlockType, settings?: Record<string, any>) => void;
 };
 
 export const BlockMenuItem = ({
   blockType,
   Icon,
   label,
+  settings,
   onClick,
 }: BlockMenuItemProps) => {
   const [_collected, drag, _dragPreview] = useDrag(() => ({
     type: "NewBlock",
-    item: { blockType },
+    item: { blockType, label, settings },
   }));
   return (
     <Button
@@ -31,7 +33,7 @@ export const BlockMenuItem = ({
       fontWeight="normal"
       borderRadius="none"
       draggable
-      onClick={() => onClick(blockType)}
+      onClick={() => onClick(blockType, settings)}
       leftIcon={
         <Box
           p={1.5}

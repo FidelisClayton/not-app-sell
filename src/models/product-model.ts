@@ -1,14 +1,19 @@
 import mongoose, { model, Model, Schema } from "mongoose";
 import { z } from "zod";
 
-export type ProductDocument = {
+export type Product = {
   _id: string;
   name: string;
   coverUrl?: string;
   description?: string;
-  app: Schema.Types.ObjectId;
+  app: string;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string;
+};
+
+export type ProductDocument = Omit<Product, "app" | "createdBy"> & {
+  app: Schema.Types.ObjectId;
   createdBy: Schema.Types.ObjectId;
 };
 
@@ -65,3 +70,4 @@ export const CreateProductClientSchema = CreateProductServerSchema.omit({
 
 // Validation schema for updating a Product
 export const UpdateProductServerSchema = ProductSchema.partial(); // All fields are optional for updates
+export const UpdateProductClientSchema = ProductSchema.partial(); // All fields are optional for updates

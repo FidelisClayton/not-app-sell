@@ -8,11 +8,7 @@ import {
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
-const handleGetAll = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  _: UserDocument,
-) => {
+const handleGetAll = async (req: NextApiRequest, res: NextApiResponse) => {
   const { productId } = req.query;
 
   if (typeof productId !== "string") {

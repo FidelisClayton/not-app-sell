@@ -44,7 +44,7 @@ export const BlockWrapper = ({ block, children }: BlockWrapperProps) => {
   };
 
   const [collectedProps, drop] = useDrop<
-    { blockType: BlockType } | Block,
+    { blockType: BlockType; settings: Record<string, any> } | Block,
     unknown,
     {
       isOver: boolean;
@@ -81,22 +81,25 @@ export const BlockWrapper = ({ block, children }: BlockWrapperProps) => {
             const _id = new BSON.ObjectId().toString("hex");
             const page = block.page;
 
-            const newBlock = match<BlockType, Block | null>(item.blockType)
-              .with(BlockType.Text, (type) => ({
+            const newBlock = match<
+              { blockType: BlockType; settings: Record<string, any> },
+              Block | null
+            >({ blockType: item.blockType, settings: item.settings })
+              .with({ blockType: BlockType.Text }, ({ blockType: type }) => ({
                 _id,
                 type,
                 content: "",
                 index,
                 page,
               }))
-              .with(BlockType.Image, (type) => ({
+              .with({ blockType: BlockType.Image }, ({ blockType: type }) => ({
                 _id,
                 type,
                 page,
                 url: null,
                 index,
               }))
-              .with(BlockType.File, (type) => ({
+              .with({ blockType: BlockType.File }, ({ blockType: type }) => ({
                 _id,
                 type,
                 page,
@@ -105,6 +108,34 @@ export const BlockWrapper = ({ block, children }: BlockWrapperProps) => {
                 fileName: null,
                 fileSize: null,
               }))
+              .with(
+                {
+                  blockType: BlockType.VideoEmbed,
+                  settings: { provider: "Youtube" },
+                },
+                ({ blockType: type }) => ({
+                  _id,
+                  index,
+                  type,
+                  page,
+                  url: null,
+                  provider: "Youtube",
+                }),
+              )
+              .with(
+                {
+                  blockType: BlockType.VideoEmbed,
+                  settings: { provider: "Vimeo" },
+                },
+                ({ blockType: type }) => ({
+                  _id,
+                  index,
+                  type,
+                  page,
+                  url: null,
+                  provider: "Vimeo",
+                }),
+              )
               .otherwise(() => null);
 
             if (!newBlock) {
@@ -126,11 +157,6 @@ export const BlockWrapper = ({ block, children }: BlockWrapperProps) => {
             .with({ cursorLocation: "bottom" }, () => block.index + 1)
             .otherwise(() => block.index);
 
-          console.log({
-            blockId: item._id,
-            index,
-            type: item.type,
-          });
           reorderBlockMutation.mutate({
             blockId: item._id,
             index,

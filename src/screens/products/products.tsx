@@ -13,23 +13,35 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { FaArrowLeft, FaFile, FaFont, FaImage, FaSadCry } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCog,
+  FaFile,
+  FaFont,
+  FaImage,
+  FaVimeo,
+  FaYoutube,
+} from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import { ProductUpsertModal } from "@/components/product-upsert-modal";
 import { CreateProductMutation } from "@/mutations/create-product-mutation";
-import { z } from "zod";
-import { CreateProductClientSchema } from "@/models/product-model";
+import {
+  CreateProductClientSchema,
+  Product,
+  UpdateProductClientSchema,
+} from "@/models/product-model";
 import { GetProductsQuery } from "@/queries/get-products-query";
 import { useRouter } from "next/router";
 import { GetPagesQuery } from "@/queries/get-pages-query";
-import { PageUpsertModal } from "@/components/page-upsert-modal";
-import { CreatePageClientSchema } from "@/validation/page-validation";
+import {
+  PageUpsertModal,
+  PageUpsertModalProps,
+} from "@/components/page-upsert-modal";
 import { CreatePageMutation } from "@/mutations/create-page-mutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { GetPageQuery } from "@/queries/get-page-query";
 import { UpdatePageMutation } from "@/mutations/update-page-mutation";
-import { useRef } from "react";
-import { Editor } from "@tiptap/core";
+import { useState } from "react";
 import { Block, BlockType } from "@/models/block-model";
 import { GetBlocksQuery } from "@/queries/get-blocks-query";
 import { match } from "ts-pattern";
@@ -41,6 +53,11 @@ import { CreateBlockMutation } from "@/mutations/create-block-mutation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { BlockMenuItem } from "@/components/block-menu-item";
+import { Page } from "@/models";
+import { UpdateProductMutation } from "@/mutations/update-product-mutation";
+import { YoutubeBlock } from "@/components/blocks/youtube-block";
+import { VimeoBlock } from "@/components/blocks/vimeo-block";
+import { z } from "zod";
 
 const BLOCKS = [
   {
@@ -58,6 +75,22 @@ const BLOCKS = [
     label: "Arquivo",
     blockType: BlockType.File,
   },
+  {
+    Icon: FaYoutube,
+    label: "Youtube",
+    blockType: BlockType.VideoEmbed,
+    settings: {
+      provider: "Youtube",
+    },
+  },
+  {
+    Icon: FaVimeo,
+    label: "Vimeo",
+    blockType: BlockType.VideoEmbed,
+    settings: {
+      provider: "Vimeo",
+    },
+  },
 ];
 
 const TOP_BAR_HEIGHT = 57;
@@ -65,10 +98,20 @@ const TOP_BAR_HEIGHT = 57;
 export const ProductsScreen = () => {
   const { appId, productId, pageId } = useRouter().query;
   const toast = useToast();
-  const createProductDisclosure = useDisclosure();
-  const createPageDisclosure = useDisclosure();
   const queryClient = useQueryClient();
-  const editorRef = useRef<Editor>(null);
+
+  const [productToUpdate, setProductToEdit] = useState<Product | null>(null);
+  const [pageToEdit, setPageToEdit] = useState<Page | null>(null);
+
+  const createProductDisclosure = useDisclosure();
+  const updateProductDisclosure = useDisclosure({
+    onClose: () => setProductToEdit(null),
+  });
+
+  const createPageDisclosure = useDisclosure();
+  const updatePageDisclosure = useDisclosure({
+    onClose: () => setPageToEdit(null),
+  });
 
   const productsQuery = GetProductsQuery.useQuery({ appId: appId?.toString() });
   const pagesQuery = GetPagesQuery.useQuery({
@@ -85,14 +128,26 @@ export const ProductsScreen = () => {
     onSuccess: () => {
       createProductDisclosure.onClose();
       toast({
+        position: "top",
         status: "success",
         description: "Produto criado com sucesso.",
       });
     },
     onError: () => {
       toast({
+        position: "top",
         status: "error",
         description: "Não foi possível criar o produto. Tente novamente.",
+      });
+    },
+  });
+
+  const updateProductMutation = UpdateProductMutation.useMutation({
+    onSuccess: () => {
+      toast({
+        position: "top",
+        status: "success",
+        description: "Produto atualizado com sucesso.",
       });
     },
   });
@@ -104,19 +159,32 @@ export const ProductsScreen = () => {
       });
       createPageDisclosure.onClose();
       toast({
+        position: "top",
         status: "success",
         description: "Página criada com sucesso.",
       });
     },
     onError: () => {
       toast({
+        position: "top",
         status: "error",
         description: "Não foi possível criar a página. Tente novamente.",
       });
     },
   });
 
-  const updatePageMutation = UpdatePageMutation.useMutation({});
+  const updatePageMutation = UpdatePageMutation.useMutation({
+    onSuccess: () => {
+      GetPagesQuery.invalidateQuery(queryClient, {
+        productId: productId?.toString(),
+      });
+      toast({
+        position: "top",
+        status: "success",
+        description: "Produto atualizado com sucesso",
+      });
+    },
+  });
 
   const createBlockMutation = CreateBlockMutation.useMutation({
     onSuccess: () => {
@@ -133,49 +201,65 @@ export const ProductsScreen = () => {
   };
 
   const handlePageCreate = (
-    formValues: z.infer<typeof CreatePageClientSchema>,
+    formValues: Parameters<PageUpsertModalProps["onSubmit"]>[0],
   ) => {
     createPageMutation.mutate({
       ...formValues,
-      appId: appId?.toString(),
-      productId: productId?.toString(),
+      coverUrl: formValues.coverUrl ?? null,
     });
   };
 
-  const handleSavePage = () => {
-    const content = editorRef.current?.getHTML();
-
-    if (!content) return;
+  const handlePageUpdate = (
+    formValues: Parameters<PageUpsertModalProps["onSubmit"]>[0],
+  ) => {
+    if (!pageToEdit?._id) return;
 
     updatePageMutation.mutate({
-      pageId: pageId?.toString(),
-      content,
+      ...formValues,
+      pageId: pageToEdit._id,
     });
   };
 
-  const handleAddBlock = (blockType: BlockType) => {
+  const handleProductUpdate = (
+    formValues: z.infer<typeof UpdateProductClientSchema>,
+  ) => {
+    if (!productToUpdate?._id) return;
+
+    updateProductMutation.mutate({
+      ...formValues,
+      productId: productToUpdate._id,
+    });
+  };
+
+  const handleAddBlock = (
+    blockType: BlockType,
+    settings: Record<string, any> = {},
+  ) => {
     if (!pageId) return;
 
     const _id = new BSON.ObjectId().toString("hex");
     const index = blocksQuery.data?.length ?? 0;
     const page = pageId.toString();
 
-    const newBlock = match<BlockType, Block | null>(blockType)
-      .with(BlockType.Text, (type) => ({
+    const newBlock = match<
+      { blockType: BlockType; settings: Record<string, any> },
+      Block | null
+    >({ blockType, settings })
+      .with({ blockType: BlockType.Text }, ({ blockType: type }) => ({
         _id,
         type,
         content: "",
         index,
         page,
       }))
-      .with(BlockType.Image, (type) => ({
+      .with({ blockType: BlockType.Image }, ({ blockType: type }) => ({
         _id,
         type,
         page,
         url: null,
         index,
       }))
-      .with(BlockType.File, (type) => ({
+      .with({ blockType: BlockType.File }, ({ blockType: type }) => ({
         _id,
         type,
         page,
@@ -184,9 +268,33 @@ export const ProductsScreen = () => {
         fileName: null,
         fileSize: null,
       }))
+      .with(
+        { blockType: BlockType.VideoEmbed, settings: { provider: "Youtube" } },
+        ({ blockType: type }) => ({
+          _id,
+          index,
+          type,
+          page,
+          url: null,
+          provider: "Youtube",
+        }),
+      )
+      .with(
+        { blockType: BlockType.VideoEmbed, settings: { provider: "Vimeo" } },
+        ({ blockType: type }) => ({
+          _id,
+          index,
+          type,
+          page,
+          url: null,
+          provider: "Vimeo",
+        }),
+      )
       .otherwise(() => null);
 
-    if (!newBlock) return;
+    if (!newBlock) {
+      return;
+    }
 
     createBlockMutation.mutate({
       ...newBlock,
@@ -210,16 +318,41 @@ export const ProductsScreen = () => {
     <DndProvider backend={HTML5Backend}>
       {createProductDisclosure.isOpen && (
         <ProductUpsertModal
+          type="create"
           onSubmit={handleProductCreate}
           disclosure={createProductDisclosure}
+          isLoading={createProductMutation.isPending}
+        />
+      )}
+
+      {productToUpdate && updateProductDisclosure.isOpen && (
+        <ProductUpsertModal
+          type="update"
+          product={productToUpdate}
+          onSubmit={handleProductUpdate}
+          disclosure={updateProductDisclosure}
+          isLoading={updateProductMutation.isPending}
         />
       )}
 
       {createPageDisclosure.isOpen && (
         <PageUpsertModal
+          type="create"
           onSubmit={handlePageCreate}
           disclosure={createPageDisclosure}
           index={pagesQuery.data?.length ?? 0}
+          isLoading={createPageMutation.isPending}
+        />
+      )}
+
+      {pageToEdit && updatePageDisclosure.isOpen && (
+        <PageUpsertModal
+          type="update"
+          page={pageToEdit}
+          onSubmit={handlePageUpdate}
+          disclosure={updatePageDisclosure}
+          index={pagesQuery.data?.length ?? 0}
+          isLoading={updatePageMutation.isPending}
         />
       )}
       <HStack
@@ -248,9 +381,7 @@ export const ProductsScreen = () => {
           <Button>Produtos</Button>
         </HStack>
 
-        <Button onClick={handleSavePage} variant="solidDark">
-          Salvar
-        </Button>
+        <Button variant="solidDark">Publicar</Button>
       </HStack>
 
       <Grid
@@ -261,7 +392,7 @@ export const ProductsScreen = () => {
         <VStack
           w="full"
           boxShadow="md"
-          spacing={6}
+          spacing={0}
           h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
           bgColor="white"
           alignItems="stretch"
@@ -269,6 +400,7 @@ export const ProductsScreen = () => {
           {productsQuery.data?.map((product) => (
             <HStack
               as={Link}
+              className="group"
               href={`/apps/${appId?.toString()}/products/${product._id}`}
               key={product._id}
               cursor="pointer"
@@ -278,12 +410,33 @@ export const ProductsScreen = () => {
               bgColor={
                 product._id === productId?.toString() ? "slate.100" : undefined
               }
+              justifyContent="space-between"
+              _hover={{ bgColor: "slate.100" }}
             >
-              <Image borderRadius="md" maxW="12" src={product.coverUrl} />
-              <VStack spacing={0}>
-                <Text>{product.name}</Text>
-                <Text>{product.description}</Text>
-              </VStack>
+              <HStack>
+                <Image borderRadius="md" maxW="12" src={product.coverUrl} />
+                <VStack spacing={0} w="full" alignItems="stretch">
+                  <Text noOfLines={1}>{product.name}</Text>
+                  <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                    {product.description}
+                  </Text>
+                </VStack>
+              </HStack>
+
+              <IconButton
+                aria-label="Configurações"
+                variant="ghost"
+                size="xs"
+                icon={<FaCog />}
+                display="none"
+                _groupHover={{ display: "flex" }}
+                _hover={{ bgColor: "white" }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setProductToEdit(product);
+                  updateProductDisclosure.onOpen();
+                }}
+              />
             </HStack>
           ))}
 
@@ -292,6 +445,7 @@ export const ProductsScreen = () => {
             leftIcon={<AiOutlinePlus />}
             fontSize="sm"
             borderRadius="none"
+            mt={4}
           >
             Novo produto
           </Button>
@@ -309,17 +463,34 @@ export const ProductsScreen = () => {
         >
           {pagesQuery.data?.map((page) => (
             <Button
+              key={page._id}
               as={Link}
               href={`/apps/${appId?.toString()}/products/${productId?.toString()}/pages/${page._id}`}
               variant="ghost"
               borderRadius="0"
-              justifyContent="flex-start"
+              justifyContent="space-between"
+              pr={1}
               fontWeight="normal"
               bgColor={
                 page._id === pageId?.toString() ? "slate.100" : undefined
               }
+              className="group"
+              rightIcon={
+                <IconButton
+                  size="xs"
+                  icon={<FaCog />}
+                  display="none"
+                  _groupHover={{ display: "flex" }}
+                  aria-label="Configurações da página"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPageToEdit(page);
+                    updatePageDisclosure.onOpen();
+                  }}
+                />
+              }
             >
-              <Text>{page.name}</Text>
+              <Text noOfLines={1}>{page.name}</Text>
             </Button>
           ))}
 
@@ -374,6 +545,14 @@ export const ProductsScreen = () => {
                     .with({ type: BlockType.File }, (block) => (
                       <FileBlock key={block._id} block={block} />
                     ))
+                    .with(
+                      { type: BlockType.VideoEmbed, provider: "Youtube" },
+                      (block) => <YoutubeBlock key={block._id} block={block} />,
+                    )
+                    .with(
+                      { type: BlockType.VideoEmbed, provider: "Vimeo" },
+                      (block) => <VimeoBlock key={block._id} block={block} />,
+                    )
                     .otherwise(() => null),
                 )}
 

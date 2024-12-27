@@ -66,21 +66,28 @@ export const TextBlock = ({ block }: TextBlockProps) => {
           ".tiptap": {
             h1: {
               fontSize: "3xl",
+              mt: 4,
             },
             h2: {
               fontSize: "2xl",
+              mt: 4,
             },
             h3: {
               fontSize: "xl",
+              mt: 4,
             },
             h4: {
               fontSize: "lg",
+              mt: 4,
             },
-            p: {
+            "> p": {
               py: 2,
             },
             "ol, ul": {
               paddingLeft: 4,
+            },
+            li: {
+              mb: 1,
             },
           },
         }}

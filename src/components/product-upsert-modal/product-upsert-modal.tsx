@@ -1,8 +1,16 @@
-import { CreateProductClientSchema } from "@/models/product-model";
 import {
+  CreateProductClientSchema,
+  Product,
+  UpdateProductClientSchema,
+} from "@/models/product-model";
+import {
+  Box,
   Button,
   FormControl,
   FormLabel,
+  HStack,
+  IconButton,
+  Image,
   Input,
   Modal,
   ModalBody,
@@ -20,38 +28,69 @@ import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ImageUpload } from "../image-upload/image-upload";
+import { FaTrash } from "react-icons/fa";
 
-export type ProductUpsertModalProps = {
+export type ProductUpsertModalProps = (
+  | {
+      type: "create";
+      onSubmit: (values: z.infer<typeof CreateProductClientSchema>) => void;
+    }
+  | {
+      type: "update";
+      product: Product;
+      onSubmit: (values: Partial<Product>) => void;
+    }
+) & {
   disclosure: UseDisclosureReturn;
-  onSubmit: (values: z.infer<typeof CreateProductClientSchema>) => void;
+  isLoading?: boolean;
 };
 
 export const ProductUpsertModal = ({
   disclosure,
-  onSubmit,
+  isLoading,
+  ...props
 }: ProductUpsertModalProps) => {
   const { appId } = useRouter().query;
-  console.log({ appId });
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<z.infer<typeof CreateProductClientSchema>>({
-    defaultValues: {
-      app: appId?.toString(),
-    },
+    formState: { isValid },
+    watch,
+    setValue,
+  } = useForm<
+    z.infer<
+      typeof props extends { type: "update" }
+        ? typeof UpdateProductClientSchema
+        : typeof CreateProductClientSchema
+    >
+  >({
+    defaultValues:
+      props.type === "update"
+        ? { ...props.product, app: props.product.app }
+        : {
+            app: appId?.toString(),
+          },
     resolver: zodResolver(CreateProductClientSchema),
   });
 
-  console.log(errors);
   const { isOpen, onClose } = disclosure;
 
   const submit = useCallback(
-    (formValues: z.infer<typeof CreateProductClientSchema>) => {
-      onSubmit(formValues);
+    (
+      formValues: z.infer<
+        typeof props extends { type: "update" }
+          ? typeof UpdateProductClientSchema
+          : typeof CreateProductClientSchema
+      >,
+    ) => {
+      props.onSubmit(formValues);
     },
     [],
   );
+
+  register("coverUrl");
+  const [coverUrl] = watch(["coverUrl"]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -72,10 +111,37 @@ export const ProductUpsertModal = ({
                 <Textarea {...register("description")} resize="none" />
               </FormControl>
 
-              <FormControl>
-                <FormLabel>Imagem de Capa</FormLabel>
-                <Input {...register("coverUrl")} type="url" />
-              </FormControl>
+              <Box w="full">
+                {coverUrl ? (
+                  <Box position="relative">
+                    <HStack
+                      inset="0"
+                      w="full"
+                      justifyContent="flex-end"
+                      mb={-10}
+                    >
+                      <IconButton
+                        variant="solid"
+                        colorScheme="slate"
+                        icon={<FaTrash />}
+                        aria-label="Remover imagem de capa"
+                        onClick={() => {
+                          setValue("coverUrl", undefined);
+                        }}
+                      />
+                    </HStack>
+                    <Image borderRadius="lg" src={coverUrl} />
+                  </Box>
+                ) : (
+                  <ImageUpload
+                    aspectRatio={210 / 297}
+                    onSuccess={async ({ objectUrl }) => {
+                      setValue("coverUrl", objectUrl);
+                    }}
+                    isLoading={isLoading}
+                  />
+                )}
+              </Box>
             </VStack>
           </ModalBody>
 
@@ -83,7 +149,12 @@ export const ProductUpsertModal = ({
             <Button type="button" variant="ghost" mr={3} onClick={onClose}>
               Fechar
             </Button>
-            <Button type="submit" variant="solidDark">
+            <Button
+              type="submit"
+              variant="solidDark"
+              isLoading={isLoading}
+              isDisabled={!isValid}
+            >
               Salvar
             </Button>
           </ModalFooter>

@@ -143,6 +143,7 @@ const handleDelete = async (
     await ProductRepository.deleteById(productId);
     return res.status(204).end();
   } catch (e) {
+    console.error(e);
     return res.status(500).json(Errors.UNEXPECTED_ERROR);
   }
 };

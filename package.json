@@ -58,6 +58,7 @@
     "next": "15.1.1",
     "next-auth": "^4.24.11",
     "node-fetch": "^3.3.2",
+    "plyr-react": "^5.3.0",
     "pretty-bytes": "^6.1.1",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",

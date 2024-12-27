@@ -1,5 +1,4 @@
 import { attachCookiesToHttpClient } from "@/lib/http";
-import { GetPageQuery } from "@/queries/get-page-query";
 import { GetPagesQuery } from "@/queries/get-pages-query";
 import { GetProductQuery } from "@/queries/get-product-query";
 import { GetProductsQuery } from "@/queries/get-products-query";

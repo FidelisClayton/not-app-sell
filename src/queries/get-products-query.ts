@@ -1,4 +1,4 @@
-import { ProductDocument } from "@/models/product-model";
+import { Product } from "@/models/product-model";
 import { AxiosError } from "axios";
 import {
   QueryClient,
@@ -9,7 +9,7 @@ import { http } from "@/lib/http";
 
 export namespace GetProductsQuery {
   export type Variables = { appId?: string };
-  export type Data = Array<ProductDocument>;
+  export type Data = Array<Product>;
   export type Error = AxiosError;
 
   export const key = ["products"];

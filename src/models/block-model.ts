@@ -6,6 +6,7 @@ export enum BlockType {
   Image = "Image",
   VideoEmbed = "VideoEmbed",
   Audio = "Audio",
+  Embed = "Embed",
 }
 
 interface BlockLike {
@@ -32,10 +33,12 @@ export interface ImageBlock extends BlockLike {
   description?: string;
 }
 
+export type VideoEmbedBlockProvider = "Youtube" | "Vimeo";
+
 export interface VideoEmbedBlock extends BlockLike {
   type: BlockType.VideoEmbed;
   url: string | null;
-  provider: string;
+  provider: VideoEmbedBlockProvider;
 }
 
 export interface AudioBlock extends BlockLike {
@@ -90,12 +93,16 @@ const ImageBlockSchema = new Schema({
 
 const VideoEmbedBlockSchema = new Schema({
   url: { type: String, required: false },
-  provider: { type: String, required: true },
+  provider: { type: String, required: false },
 });
 
 const AudioBlockSchema = new Schema({
   url: { type: String, required: false },
   description: { type: String, required: false },
+});
+
+const EmbedBlockSchema = new Schema({
+  code: { type: String, required: false },
 });
 
 // Block Model and Discriminators
@@ -117,3 +124,6 @@ if (!BlockModel.discriminators?.[BlockType.VideoEmbed])
 
 if (!BlockModel.discriminators?.[BlockType.Audio])
   BlockModel.discriminator?.(BlockType.Audio, AudioBlockSchema);
+
+if (!BlockModel.discriminators?.[BlockType.Embed])
+  BlockModel.discriminator?.(BlockType.Embed, EmbedBlockSchema);

@@ -1,4 +1,4 @@
-import { PageDocument } from "@/models";
+import { Page } from "@/models";
 import { AxiosError } from "axios";
 import {
   QueryClient,
@@ -9,7 +9,7 @@ import { http } from "@/lib/http";
 
 export namespace GetPagesQuery {
   export type Variables = { productId?: string };
-  export type Data = Array<PageDocument>;
+  export type Data = Array<Page>;
   export type Error = AxiosError;
 
   export const key = ["pages"];

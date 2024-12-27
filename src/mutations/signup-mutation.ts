@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import {
   MutationOptions,
   useMutation as useRQMutation,
@@ -7,7 +7,7 @@ import { http } from "@/lib/http";
 
 export namespace SignupMutation {
   export type Params = { name: string; email: string; password: string };
-  export type Response = {};
+  export type Response = void;
   export type Error = AxiosError;
 
   export const key = ["signup"];

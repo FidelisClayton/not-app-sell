@@ -12,7 +12,6 @@ import {
   IconButton,
   Input,
   Select,
-  Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react";

@@ -14,7 +14,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { apps } from "@/lib/db";
+import { apps } from "@/lib/mock";
 
 export default function AppLoginPage() {
   const router = useRouter();
