@@ -675,59 +675,6 @@
   dependencies:
     "@tanstack/query-core" "5.62.8"
 
-"@tiptap-pro/extension-details-content@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details-content/-/extension-details-content-2.17.0.tgz#89abb8f6fc15fd24faacffbb2ffe6b941fe54e6f"
-  integrity sha512-faN0EB09AkqaimdldDl0ZYNAJAQcw0/VErEbWkVIwVNEPWEBeCXdwc1Sgfe+N5AeC941ZOEeEVYzCgutumoogA==
-
-"@tiptap-pro/extension-details-summary@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details-summary/-/extension-details-summary-2.17.0.tgz#dce87b260ffaf24376e68ab97ca63e8083837fe5"
-  integrity sha512-aTI/6GUJyy0EoX1EartJzP+cHnf6Xf7pAJwQrBTwsxRcXyNuqK1X6QXLnXmnWN1+409AHUWfR33xnTULuOHYoQ==
-
-"@tiptap-pro/extension-details@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-details/-/extension-details-2.17.0.tgz#60255e73d7bd0972cfacb2ae2165d61c2c330f9f"
-  integrity sha512-eDbsh0R7rSO5L4rzNVTEzqwg94RmPd+cOj9enHlnNAcugf5uVgfQuXFsYpyB4+7FvVVq2dyy7NPsKbn0V/WJ2Q==
-
-"@tiptap-pro/extension-drag-handle-react@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-drag-handle-react/-/extension-drag-handle-react-2.17.0.tgz#a00bac9ea24f255745446783e6c55938821f00e1"
-  integrity sha512-9v/zjHojRAc+YV8iFaY9sFhg4/5MLuK23bVe7oBf6OQDm0I0afUtorWT8/Pld+XPYKVpJV4tU7Du24r58Lq+QQ==
-
-"@tiptap-pro/extension-drag-handle@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-drag-handle/-/extension-drag-handle-2.17.0.tgz#04d8c9485891581308b89c31ea2e2ed80a649aa7"
-  integrity sha512-9/eJR3tfxANtndRcltcr1d5/ujjELSK5T3E2h861/ZsXaQznQRyOcfnAjpRxBxUb5nMV4T2hBa+fDvVhmv6XWA==
-  dependencies:
-    tippy.js "^6.3.7"
-
-"@tiptap-pro/extension-emoji@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-emoji/-/extension-emoji-2.17.0.tgz#a5b7dcda4847e5403b270a6855f86e1d75a6c52b"
-  integrity sha512-81Oxme0kt5v6TwUVXRmrcRzQSjDL3qZY+cxMr0y9bt3sRhK1a9b0tuX+eYLTzQXUCvBw9LvBoE2pX/ZgFxQ9Qw==
-  dependencies:
-    emoji-regex "^10.4.0"
-    emojibase-data "^7.0.1"
-    is-emoji-supported "^0.0.5"
-
-"@tiptap-pro/extension-file-handler@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-file-handler/-/extension-file-handler-2.17.0.tgz#673d8741b22a286ea7de4a7f3fbf85026719a19b"
-  integrity sha512-VctPMhLEZf+WyI7/gYh41mlraws1XMvt/VwoVt+Ilyu0VWS6RyaKF3k7OQCPFbyvChMBF42gKr+Eaq42wVo+zQ==
-
-"@tiptap-pro/extension-node-range@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-node-range/-/extension-node-range-2.17.0.tgz#6b883437aa32c1ec34d23b30ec55ad4591c2afe2"
-  integrity sha512-6Qx5haHrUpMIjdFDxAqzrRDw0bDl/glofnlq+AgeGwTg9C1N8194rONCkxDXQYxLGY7A+pMcO5XMbXYRcLtFXw==
-
-"@tiptap-pro/extension-unique-id@^2.17.0":
-  version "2.17.0"
-  resolved "https://registry.tiptap.dev/@tiptap-pro%2fextension-unique-id/-/extension-unique-id-2.17.0.tgz#64c61061a05a5578b3818bb875bfd38cd3bc6845"
-  integrity sha512-4LoM1lS3yRCP2t/Ufp8u40Sdr09YX0+wX3JikssU1Cg67uefhoz1qw/oSJbOBgx0O5x8US9fhCWI2ryHK5Xm8Q==
-  dependencies:
-    uuid "^10.0.0"
-
 "@tiptap/core@^2.10.4":
   version "2.10.4"
   resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-2.10.4.tgz#0b3ad822d71f5834b281590809f430e6fd41523c"
@@ -1708,20 +1655,10 @@ dunder-proto@^1.0.0:
     es-errors "^1.3.0"
     gopd "^1.2.0"
 
-emoji-regex@^10.4.0:
-  version "10.4.0"
-  resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-10.4.0.tgz#03553afea80b3975749cfcb36f776ca268e413d4"
-  integrity sha512-EC+0oUMY1Rqm4O6LLrgjtYDvcVYTy7chDnM4Q7030tP4Kwj3u/pR6gP9ygnp2CJMK5Gq+9Q2oqmrFJAz01DXjw==
-
 emoji-regex@^9.2.2:
   version "9.2.2"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.2.2.tgz#840c8803b0d8047f4ff0cf963176b32d4ef3ed72"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
-
-emojibase-data@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/emojibase-data/-/emojibase-data-7.0.1.tgz#a81d7fcd12247f7d94a96dcbdb143e6b6dd5c328"
-  integrity sha512-BLZpOdwyFpZ7lzBWyDtnxmKVm/SJMYgAfp1if3o6n1TVUMSXAf0nikONXl90LZuJ/m3XWPBkkubgCet2BsCGGQ==
 
 enhanced-resolve@^5.15.0:
   version "5.17.1"
@@ -2511,11 +2448,6 @@ is-date-object@^1.0.5, is-date-object@^1.1.0:
   dependencies:
     call-bound "^1.0.2"
     has-tostringtag "^1.0.2"
-
-is-emoji-supported@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/is-emoji-supported/-/is-emoji-supported-0.0.5.tgz#f22301b22c63d6322935e829f39dfa59d03a7fe2"
-  integrity sha512-WOlXUhDDHxYqcSmFZis+xWhhqXiK2SU0iYiqmth5Ip0FHLZQAt9rKL5ahnilE8/86WH8tZ3bmNNNC+bTzamqlw==
 
 is-extglob@^2.1.1:
   version "2.1.1"
@@ -4142,11 +4074,6 @@ uuid@8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.0.0.tgz#bc6ccf91b5ff0ac07bbcdbf1c7c4e150db4dbb6c"
   integrity sha512-jOXGuXZAWdsTH7eZLtyXMqUb9EcWMGZNbL9YcGBJl4MH4nrxHmZJhEHvyLFrkxo+28uLb/NYRcStH48fnD0Vzw==
-
-uuid@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-10.0.0.tgz#5a95aa454e6e002725c79055fd42aaba30ca6294"
-  integrity sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==
 
 uuid@^8.3.2:
   version "8.3.2"
