@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   HStack,
   IconButton,
@@ -109,6 +110,14 @@ export const ProductUpsertModal = ({
               <FormControl>
                 <FormLabel>Descrição</FormLabel>
                 <Textarea {...register("description")} resize="none" />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Identificação do produto</FormLabel>
+                <Input type="text" {...register("externalProductId")} />
+                <FormHelperText>
+                  Veja como encontrar a identificação
+                </FormHelperText>
               </FormControl>
 
               <Box w="full">

@@ -1,5 +1,7 @@
+import { AppHomePreview } from "@/components/app-home-preview";
 import { AppLoginPreview } from "@/components/app-login-preview";
 import { AppPreviewWrapper } from "@/components/app-preview-wrapper";
+import { ImageUpload } from "@/components/image-upload/image-upload";
 import { CreateAppSchema } from "@/validation/app-validation";
 import {
   Box,
@@ -42,6 +44,8 @@ export const AppUpsert = ({
     register,
     watch,
     formState: { errors, isValid },
+    setValue,
+    setFocus,
     handleSubmit,
   } = useForm<z.infer<typeof CreateAppSchema>>({
     defaultValues: initialValues ?? {
@@ -50,11 +54,12 @@ export const AppUpsert = ({
       language: null,
       name: "",
       logoUrl: null,
+      bannerUrl: null,
       supportEmail: null,
     },
     resolver: zodResolver(CreateAppSchema),
     reValidateMode: "onChange",
-    mode: "onChange",
+    mode: "all",
   });
   const formValues = watch();
 
@@ -64,6 +69,9 @@ export const AppUpsert = ({
     },
     [formValues],
   );
+
+  register("logoUrl");
+  const bannerField = register("bannerUrl");
 
   return (
     <form onSubmit={handleSubmit(submit)}>
@@ -147,8 +155,19 @@ export const AppUpsert = ({
           </FormControl>
 
           <FormControl>
-            <FormLabel size="sm">URL da logo</FormLabel>
-            <Input {...register("logoUrl")} />
+            <FormLabel size="sm">Logo</FormLabel>
+            <ImageUpload
+              imageUrl={formValues.logoUrl ?? undefined}
+              aspectRatio={1 / 1}
+              onSuccess={({ objectUrl }) => {
+                setFocus("logoUrl");
+                setValue("logoUrl", objectUrl, {
+                  shouldTouch: true,
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+            />
           </FormControl>
 
           <FormControl>
@@ -171,6 +190,23 @@ export const AppUpsert = ({
         <HStack w="full">
           <AppPreviewWrapper>
             <AppLoginPreview app={formValues} />
+          </AppPreviewWrapper>
+
+          <AppPreviewWrapper>
+            <AppHomePreview
+              appId={appId?.toString()}
+              app={formValues}
+              onBannerUpload={(value) => {
+                setFocus("bannerUrl");
+                setValue("bannerUrl", value, {
+                  shouldTouch: true,
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+                bannerField.onChange({ target: { value } });
+                bannerField.onBlur({ target: {}, type: "" });
+              }}
+            />
           </AppPreviewWrapper>
         </HStack>
       </Grid>

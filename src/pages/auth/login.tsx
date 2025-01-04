@@ -22,7 +22,8 @@ export default function LoginPage() {
     await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/", // Redirect after login
+      callbackUrl: "/apps", // Redirect after login
+      basePath: `/api/auth`,
     });
   };
 

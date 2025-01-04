@@ -9,8 +9,9 @@ import { getServerSession, NextAuthOptions } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { UserRepository } from "@/repositories/user-repository";
 import { createError } from "./error";
+import { CustomerModel } from "@/models/customer-model";
 
-export const authOptions: NextAuthOptions = {
+export const adminAuthOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(mongodbClient),
   providers: [
     credentials({
@@ -20,8 +21,10 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         await connectDB();
+
+        console.log(req);
 
         const user = await UserModel.findOne({
           email: credentials?.email,
@@ -67,7 +70,7 @@ export const getSessionUser = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, adminAuthOptions);
 
   if (!session?.user?.email) return null;
 
@@ -83,7 +86,7 @@ export const validateSession = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, adminAuthOptions);
   if (!session?.user)
     throw createError("UNAUTHORIZED", "User not logged in", 401);
   return session.user;

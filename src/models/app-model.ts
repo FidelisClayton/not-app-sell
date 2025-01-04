@@ -5,6 +5,7 @@ export type AppDocument = {
   name: string;
   colorScheme: string;
   logoUrl: string | null;
+  bannerUrl: string | null;
   description: string | null;
   language: string | null;
   supportEmail: string | null;
@@ -24,6 +25,10 @@ const AppSchema = new Schema<AppDocument>(
       required: [true, "`colorScheme` is required"],
     },
     logoUrl: {
+      type: String,
+      required: false,
+    },
+    bannerUrl: {
       type: String,
       required: false,
     },

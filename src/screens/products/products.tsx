@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Box,
   Button,
   Container,
@@ -7,6 +8,7 @@ import {
   HStack,
   IconButton,
   Image,
+  Spacer,
   Text,
   useDisclosure,
   useToast,
@@ -15,9 +17,12 @@ import {
 import Link from "next/link";
 import {
   FaArrowLeft,
+  FaChevronLeft,
+  FaChevronRight,
   FaCog,
   FaFile,
   FaFont,
+  FaHome,
   FaImage,
   FaVimeo,
   FaYoutube,
@@ -58,6 +63,7 @@ import { UpdateProductMutation } from "@/mutations/update-product-mutation";
 import { YoutubeBlock } from "@/components/blocks/youtube-block";
 import { VimeoBlock } from "@/components/blocks/vimeo-block";
 import { z } from "zod";
+import { GetAppQuery } from "@/queries/get-app-query";
 
 const BLOCKS = [
   {
@@ -112,6 +118,8 @@ export const ProductsScreen = () => {
   const updatePageDisclosure = useDisclosure({
     onClose: () => setPageToEdit(null),
   });
+
+  const appQuery = GetAppQuery.useQuery({ id: appId?.toString() });
 
   const productsQuery = GetProductsQuery.useQuery({ appId: appId?.toString() });
   const pagesQuery = GetPagesQuery.useQuery({
@@ -513,61 +521,117 @@ export const ProductsScreen = () => {
           </Box>
         </VStack>
 
-        <Box
-          w="full"
-          h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`}
-          overflowY="auto"
-          py="8"
-        >
+        <Box w="full" h={`calc(100vh - ${TOP_BAR_HEIGHT}px)`} py="8">
           {blocksQuery.data && (
             <Container
               mx="auto"
-              maxW="lg"
+              w="400px"
+              maxW="full"
               boxShadow="md"
               borderRadius="xl"
               bgColor="white"
+              px="0"
             >
-              <VStack w="full" minH="20" px="4" py="8" spacing={0}>
-                {pageQuery.data && (
-                  <Heading w="full" mb="4">
-                    {pageQuery.data.name}
-                  </Heading>
-                )}
+              <Grid h="800px" gridTemplateRows="64px 1fr">
+                <HStack
+                  pointerEvents="none"
+                  w="full"
+                  borderBottom="1px"
+                  borderColor="slate.200"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  px="4"
+                >
+                  <Box flex="1">
+                    <IconButton
+                      variant="unstyled"
+                      aria-label="Voltar"
+                      icon={<FaChevronLeft />}
+                    />
+                  </Box>
 
-                {blocksQuery.data?.map((block) =>
-                  match(block)
-                    .with({ type: BlockType.Text }, (block) => (
-                      <TextBlock key={block._id} block={block} />
-                    ))
-                    .with({ type: BlockType.Image }, (block) => (
-                      <ImageBlock key={block._id} block={block} />
-                    ))
-                    .with({ type: BlockType.File }, (block) => (
-                      <FileBlock key={block._id} block={block} />
-                    ))
-                    .with(
-                      { type: BlockType.VideoEmbed, provider: "Youtube" },
-                      (block) => <YoutubeBlock key={block._id} block={block} />,
-                    )
-                    .with(
-                      { type: BlockType.VideoEmbed, provider: "Vimeo" },
-                      (block) => <VimeoBlock key={block._id} block={block} />,
-                    )
-                    .otherwise(() => null),
-                )}
+                  {appQuery.data?.logoUrl && (
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      flex="1"
+                    >
+                      <Image
+                        alt={appQuery.data.name}
+                        src={appQuery.data.logoUrl}
+                        w="12"
+                      />
+                    </Box>
+                  )}
 
-                {!blocksQuery.data?.length && (
-                  <VStack
-                    w="full"
-                    alignItems="flex-start"
-                    justifyContent="flex-start"
-                  >
-                    <Text color="gray.500" textAlign="left">
-                      Esta página está vazia, adicione blocos para customizá-la.
-                    </Text>
-                  </VStack>
-                )}
-              </VStack>
+                  <Box flex="1" />
+                </HStack>
+
+                <VStack w="full" overflowY="auto" pb="4">
+                  {pageQuery.data && (
+                    <VStack w="full" pt={pageQuery.data.coverUrl ? 0 : 4}>
+                      {pageQuery.data.coverUrl && (
+                        <Box w="full" overflow="hidden">
+                          <AspectRatio ratio={16 / 9}>
+                            <Image
+                              objectFit="cover"
+                              src={pageQuery.data.coverUrl}
+                            />
+                          </AspectRatio>
+                        </Box>
+                      )}
+                      <Heading size="lg" w="full" textAlign="left" px="8">
+                        {pageQuery.data.name}
+                      </Heading>
+                    </VStack>
+                  )}
+
+                  {blocksQuery.data && (
+                    <VStack w="full" px="8">
+                      {blocksQuery.data.map((block) =>
+                        match(block)
+                          .with({ type: BlockType.Text }, (block) => (
+                            <TextBlock key={block._id} block={block} />
+                          ))
+                          .with({ type: BlockType.Image }, (block) => (
+                            <ImageBlock key={block._id} block={block} />
+                          ))
+                          .with({ type: BlockType.File }, (block) => (
+                            <FileBlock key={block._id} block={block} />
+                          ))
+                          .with(
+                            { type: BlockType.VideoEmbed, provider: "Youtube" },
+                            (block) => (
+                              <YoutubeBlock key={block._id} block={block} />
+                            ),
+                          )
+                          .with(
+                            { type: BlockType.VideoEmbed, provider: "Vimeo" },
+                            (block) => (
+                              <VimeoBlock key={block._id} block={block} />
+                            ),
+                          )
+                          .otherwise(() => null),
+                      )}
+                    </VStack>
+                  )}
+
+                  {!blocksQuery.data?.length && (
+                    <VStack
+                      w="full"
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      px="8"
+                    >
+                      <Text color="gray.500" textAlign="center">
+                        Esta página está vazia, adicione blocos para
+                        customizá-la.
+                      </Text>
+                    </VStack>
+                  )}
+                </VStack>
+              </Grid>
             </Container>
           )}
         </Box>

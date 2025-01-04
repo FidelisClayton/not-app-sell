@@ -6,6 +6,7 @@ export type Product = {
   name: string;
   coverUrl?: string;
   description?: string;
+  externalProductId?: string;
   app: string;
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +26,7 @@ const schema = new Schema<ProductDocument>(
     },
     coverUrl: { type: String, required: false },
     description: { type: String, required: false },
+    externalProductId: { type: String, required: false },
     app: {
       type: Schema.Types.ObjectId,
       ref: "App",
@@ -48,6 +50,7 @@ export const ProductSchema = z.object({
   name: z.string().min(1, "`name` is required"),
   coverUrl: z.string().url().optional(),
   description: z.string().optional(),
+  externalProductId: z.string().optional(),
   app: z.string().regex(/^[0-9a-fA-F]{24}$/, "`app` must be a valid ObjectId"),
   createdBy: z
     .string()

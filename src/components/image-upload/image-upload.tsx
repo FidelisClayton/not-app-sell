@@ -2,7 +2,9 @@ import { CreateUploadUrlMutation } from "@/mutations/create-upload-url-mutation"
 import { UploadFileMutation } from "@/mutations/upload-file-mutation";
 import {
   AspectRatio,
+  Box,
   Center,
+  Image,
   Input,
   Spinner,
   StackProps,
@@ -22,6 +24,7 @@ export type ImageUploadProps = {
   isLoading?: boolean;
   aspectRatio?: number;
   containerProps?: Partial<StackProps>;
+  imageUrl?: string;
 };
 
 export const ImageUpload = ({
@@ -29,6 +32,7 @@ export const ImageUpload = ({
   isLoading: isLoadingExternal,
   aspectRatio,
   containerProps,
+  imageUrl,
 }: ImageUploadProps) => {
   const session = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -87,6 +91,35 @@ export const ImageUpload = ({
     createUploadUrlMutation.isPending ||
     uploadFileMutation.isPending;
 
+  const overlay = (
+    <>
+      <Text textAlign="center" w="full">
+        Arraste sua imagem aqui
+      </Text>
+      <Text textAlign="center" fontSize="sm" w="full">
+        ou clique para fazer upload
+      </Text>
+
+      {isLoading && (
+        <Center
+          top="0"
+          left="0"
+          position="absolute"
+          w="full"
+          h="full"
+          bgColor="blackAlpha.500"
+        >
+          <VStack>
+            <Spinner colorScheme="whiteAlpha" />
+            <Text fontSize="sm" color="whiteAlpha.800">
+              Fazendo upload da imagem
+            </Text>
+          </VStack>
+        </Center>
+      )}
+    </>
+  );
+
   return (
     <AspectRatio w="full" ratio={aspectRatio ?? 16 / 9}>
       <VStack
@@ -97,32 +130,26 @@ export const ImageUpload = ({
         bgColor="slate.100"
         borderRadius="lg"
         cursor="pointer"
+        position="relative"
         {...containerProps}
         onClick={handleClick}
       >
-        <Text textAlign="center" w="full">
-          Arraste sua imagem aqui
-        </Text>
-        <Text textAlign="center" fontSize="sm" w="full">
-          ou clique para fazer upload
-        </Text>
-
-        {isLoading && (
-          <Center
-            top="0"
-            left="0"
-            position="absolute"
-            w="full"
-            h="full"
-            bgColor="blackAlpha.500"
-          >
-            <VStack>
-              <Spinner colorScheme="whiteAlpha" />
-              <Text fontSize="sm" color="whiteAlpha.800">
-                Fazendo upload da imagem
-              </Text>
-            </VStack>
-          </Center>
+        {imageUrl ? (
+          <>
+            <Image alt="Logo" src={imageUrl} />
+            <Center
+              flexDirection="column"
+              position="absolute"
+              inset="0"
+              opacity={isLoading ? 1 : 0}
+              _hover={{ opacity: 1, bgColor: "blackAlpha.800" }}
+              color="white"
+            >
+              {overlay}
+            </Center>
+          </>
+        ) : (
+          overlay
         )}
 
         <Input

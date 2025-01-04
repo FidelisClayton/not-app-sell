@@ -2,17 +2,24 @@ import {
   ProductModel,
   CreateProductServerSchema,
   UpdateProductServerSchema,
+  Product,
 } from "@/models";
 import { z } from "zod";
 
 const getAll = async (userId: string, appId: string) => {
   return ProductModel.find({ createdBy: userId, app: appId })
     .select("-__v")
-    .lean();
+    .lean<Product>();
 };
 
 const getById = async (id: string) => {
-  return ProductModel.findById(id).select("-__v").lean();
+  return ProductModel.findById(id).select("-__v").lean<Product>();
+};
+
+const getByExternalProductId = async (id: string) => {
+  return ProductModel.findOne({ externalProductId: id })
+    .select("-__v")
+    .lean<Product>();
 };
 
 const create = async (data: z.infer<typeof CreateProductServerSchema>) => {
@@ -36,4 +43,5 @@ export const ProductRepository = {
   create,
   updateById,
   deleteById,
+  getByExternalProductId,
 };
