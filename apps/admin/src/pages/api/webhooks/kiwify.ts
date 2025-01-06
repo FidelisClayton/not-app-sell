@@ -44,7 +44,6 @@ export default async function handler(
       customer = await CustomerRepository.create({
         name: fullName, // Use email prefix as a default name
         email,
-        password: "", // Placeholder password, can be hashed if required
       });
     }
 

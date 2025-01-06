@@ -1,5 +1,5 @@
 import { connectDB } from "./mongodb";
-import { mongodbClient } from "@/db";
+import { mongodbClient } from "./db";
 import { UserModel } from "@shared/models";
 import credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";

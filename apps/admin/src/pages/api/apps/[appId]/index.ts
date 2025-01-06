@@ -15,7 +15,7 @@ export default async function handler(
   const user = await fetchUser(sessionUser.email!);
 
   return match(req)
-    .with({ method: "GET" }, () => AppController.handleGetById(req, res, user))
+    .with({ method: "GET" }, () => AppController.handleGetById(req, res))
     .with({ method: "PUT" }, () => AppController.handlePut(req, res, user))
     .with({ method: "DELETE" }, () =>
       AppController.handleDelete(req, res, user),

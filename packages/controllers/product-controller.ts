@@ -162,6 +162,37 @@ const handlePut = async (
   }
 };
 
+const handleDelete = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+  user: UserDocument,
+) => {
+  const { productId } = req.query;
+
+  if (typeof productId !== "string") {
+    return res.status(400).json(Errors.BAD_REQUEST);
+  }
+
+  try {
+    const product = await ProductRepository.getById(productId);
+    // TODO: delete child content
+
+    if (!product) {
+      return res.status(404).json(Errors.RESOURCE_NOT_FOUND);
+    }
+
+    if (String(product.createdBy) !== user._id.toString()) {
+      return res.status(403).json(Errors.FORBIDDEN);
+    }
+
+    await ProductRepository.deleteById(productId);
+    return res.status(204).end();
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json(Errors.UNEXPECTED_ERROR);
+  }
+};
+
 export const ProductController = {
   handleGetAll,
   handleGetById,
@@ -169,4 +200,5 @@ export const ProductController = {
   handlePut,
   handleGetOwned,
   handleGetUnowned,
+  handleDelete,
 };

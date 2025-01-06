@@ -12,6 +12,7 @@ const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
+    // TODO: return only created by use
     const app = await AppRepository.getById(appId);
 
     if (!app) {
