@@ -1,0 +1,12 @@
+{
+  "name": "@shared/lib",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "exports": {
+    ".": "./src"
+  },
+  "dependencies": {
+    "@shared/models": "*"
+  }
+}

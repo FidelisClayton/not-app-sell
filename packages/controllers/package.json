@@ -1,0 +1,11 @@
+{
+  "name": "@shared/controllers",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@shared/lib": "*",
+    "@shared/models": "*",
+    "@shared/repositories": "*"
+  }
+}
