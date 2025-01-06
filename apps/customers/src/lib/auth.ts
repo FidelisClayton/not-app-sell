@@ -24,8 +24,6 @@ export const adminAuthOptions: NextAuthOptions = {
         // Check whether or not the email is associated with the app (CustomerApp)
         // Check whether or not the subscription is active
         try {
-          console.log(process.env);
-
           await connectDB();
 
           if (!credentials) {
@@ -40,7 +38,6 @@ export const adminAuthOptions: NextAuthOptions = {
             throw new Error("`customer` is missing.");
           }
 
-          console.log(req.body, customer);
           const customerApp = await CustomerAppRepository.findByCustomerAndApp(
             customer._id.toString(),
             req.body?.appId,
@@ -49,9 +46,11 @@ export const adminAuthOptions: NextAuthOptions = {
           if (!customerApp?.isActive)
             throw new Error("The subscription is not active");
 
-          console.log("customer app", customerApp);
-
-          return customer;
+          return {
+            id: customer._id,
+            email: customer.email,
+            name: customer.name,
+          };
         } catch (e) {
           console.error(e);
 
