@@ -10,6 +10,8 @@ import {
   WebhookEventName,
 } from "@/types/webhook-event-type";
 import { z } from "zod";
+import initMiddleware from "@/lib/init-middleware";
+import Cors from "cors";
 
 const kiwifyBodySchema = z.object({
   webhook_event_type: z.string(),
@@ -22,10 +24,19 @@ const kiwifyBodySchema = z.object({
   }),
 });
 
+const cors = initMiddleware(
+  Cors({
+    methods: ["POST", "OPTIONS"], // Allowed methods
+    origin: "*", // Replace with your allowed origin
+  }),
+);
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await cors(req, res);
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@sofist-apps/admin",
+  "name": "@sofistapps/admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,10 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@hookform/resolvers": "^3.9.1",
+    "@shared/controllers": "*",
+    "@shared/lib": "*",
+    "@shared/repositories": "*",
+    "@shared/validation": "*",
     "@tanstack/react-query": "^5.62.8",
     "@tiptap/core": "^2.10.4",
     "@tiptap/extension-character-count": "^2.10.4",
@@ -41,6 +45,7 @@
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "bson": "^6.10.1",
+    "cors": "^2.8.5",
     "framer-motion": "^11.15.0",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.469.0",
@@ -63,14 +68,11 @@
     "y-prosemirror": "^1.2.15",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.21",
-    "zod": "^3.24.1",
-    "@shared/lib": "*",
-    "@shared/repositories": "*",
-    "@shared/validation": "*",
-    "@shared/controllers": "*"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/cors": "^2.8.17",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
