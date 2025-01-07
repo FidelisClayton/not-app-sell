@@ -1,4 +1,3 @@
-import { getToken } from "@chakra-ui/react";
 import { Errors } from "@shared/lib/error";
 import { connectDB } from "@shared/lib/mongodb";
 import { colorsTheme } from "@shared/lib/theme";
@@ -19,16 +18,8 @@ export default async function handler(
 
   if (!app) return res.status(404).json(Errors.RESOURCE_NOT_FOUND);
 
-  const backgroundColor = getToken(
-    "colors",
-    `${app.colorScheme}.50` as string,
-    "gray.500",
-  )(colorsTheme);
-  const themeColor = getToken(
-    "colors",
-    `${app.colorScheme}.500` as string,
-    "gray.500",
-  )(colorsTheme);
+  const backgroundColor = colorsTheme.colors[app.colorScheme]["50"];
+  const themeColor = colorsTheme.colors[app.colorScheme]["500"];
 
   res.setHeader("Content-Type", "application/json");
   res.status(200).json({
