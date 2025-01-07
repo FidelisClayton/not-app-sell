@@ -72,7 +72,7 @@ export default async function handler(
         .json({ error: `Product with id "${productId}" not found` });
     }
 
-    for (let product of products) {
+    for (const product of products) {
       const appId = product.app;
 
       await new Promise((resolve) => {
