@@ -63,50 +63,63 @@ export default async function handler(
       return res.status(400).json({ error: "User not created" });
     }
 
-    // Fetch the product and its associated app
-    const product = await ProductRepository.getByExternalProductId(productId);
-    if (!product) {
+    // Fetch the products and its associated app
+    const products =
+      await ProductRepository.getAllByExternalProductId(productId);
+    if (!products.length) {
       return res
         .status(404)
         .json({ error: `Product with id "${productId}" not found` });
     }
 
-    const appId = product.app;
+    for (let product of products) {
+      const appId = product.app;
 
-    match(eventType)
-      .with(WebhookEventName.OrderApproved, async () => {
-        // Grant access to the app
-        await CustomerAppRepository.upsert(customer._id, appId, {
-          isActive: true,
-        });
+      await new Promise((resolve) => {
+        match(eventType)
+          .with(WebhookEventName.OrderApproved, async () => {
+            // Grant access to the app
+            await CustomerAppRepository.upsert(customer._id, appId, {
+              isActive: true,
+            });
 
-        // Grant access to the product
-        await CustomerProductRepository.upsert(customer._id, product._id, {
-          isActive: true,
-        });
-      })
-      .with(
-        P.union(
-          WebhookEventName.OrderRefunded,
-          WebhookEventName.Chargeback,
-          WebhookEventName.SubscriptionCanceled,
-        ),
-        async () => {
-          await CustomerProductRepository.deactivate(
-            customer._id.toString(),
-            product._id.toString(),
-          );
-        },
-      )
-      .with(WebhookEventName.SubscriptionRenewed, async () => {
-        await CustomerProductRepository.activate(
-          customer._id.toString(),
-          product._id.toString(),
-        );
-      })
-      .otherwise(() =>
-        res.status(400).json({ error: `Unsupported event type: ${eventType}` }),
-      );
+            // Grant access to the product
+            await CustomerProductRepository.upsert(customer._id, product._id, {
+              isActive: true,
+            });
+
+            resolve(null);
+          })
+          .with(
+            P.union(
+              WebhookEventName.OrderRefunded,
+              WebhookEventName.Chargeback,
+              WebhookEventName.SubscriptionCanceled,
+            ),
+            async () => {
+              await CustomerProductRepository.deactivate(
+                customer._id.toString(),
+                product._id.toString(),
+              );
+
+              resolve(null);
+            },
+          )
+          .with(WebhookEventName.SubscriptionRenewed, async () => {
+            await CustomerProductRepository.activate(
+              customer._id.toString(),
+              product._id.toString(),
+            );
+            resolve(null);
+          })
+          .otherwise(() => {
+            resolve(null);
+            return res
+              .status(400)
+              .json({ error: `Unsupported event type: ${eventType}` });
+          });
+      });
+    }
 
     return res.status(200).json({ success: true });
   } catch (error) {

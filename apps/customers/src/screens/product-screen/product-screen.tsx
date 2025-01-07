@@ -1,5 +1,6 @@
 import { TopMenu } from "@/components/top-menu";
 import { GetPagesQuery } from "@/queries/get-pages-query";
+import { GetProductProgressQuery } from "@/queries/get-product-progress-query";
 import { GetProductQuery } from "@/queries/get-product-query";
 import {
   AspectRatio,
@@ -8,7 +9,6 @@ import {
   Container,
   Grid,
   HStack,
-  Icon,
   Image,
   Text,
   VStack,
@@ -16,9 +16,18 @@ import {
 import { Page } from "@shared/models/page-model";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FiBook, FiBookOpen, FiChevronRight, FiLock } from "react-icons/fi";
+import {
+  FiBook,
+  FiBookOpen,
+  FiCheck,
+  FiChevronRight,
+  FiLock,
+} from "react-icons/fi";
+import { match } from "ts-pattern";
 
 export const ProductScreen = () => {
+  const router = useRouter();
+
   const { productId, appId } = useRouter().query;
   const productQuery = GetProductQuery.useQuery({
     productId: productId?.toString(),
@@ -26,6 +35,21 @@ export const ProductScreen = () => {
   const pagesQuery = GetPagesQuery.useQuery({
     productId: productId?.toString(),
   });
+  const productProgressQuery = GetProductProgressQuery.useQuery({
+    productId: productId?.toString(),
+  });
+
+  const handleContinue = () => {
+    const nextPageId = pagesQuery.data?.find((page) => {
+      return !productProgressQuery.data?.some((pp) => pp.page === page._id);
+    })?._id;
+
+    if (nextPageId) {
+      router.push(`${router.asPath}/pages/${nextPageId}`);
+    } else {
+      router.push(`${router.asPath}/pages/${pagesQuery.data?.[0]?._id}`);
+    }
+  };
 
   if (!productQuery.data || !pagesQuery.data) return null;
 
@@ -81,9 +105,19 @@ export const ProductScreen = () => {
             borderColor="slate.200"
             bgColor="white"
           >
-            {pagesQuery.data.map((page) => (
-              <PageItem key={page._id} page={page} />
-            ))}
+            {pagesQuery.data.map((page) => {
+              const isCompleted =
+                productProgressQuery.data?.some(
+                  (progress) => progress.page === page._id,
+                ) ?? false;
+              return (
+                <PageItem
+                  key={page._id}
+                  page={page}
+                  isCompleted={isCompleted}
+                />
+              );
+            })}
           </VStack>
 
           <Box position="fixed" w="full" px="4" left="0" bottom="4">
@@ -93,6 +127,7 @@ export const ProductScreen = () => {
               size="lg"
               colorScheme="green"
               fontSize="sm"
+              onClick={handleContinue}
             >
               Continuar
             </Button>
@@ -158,14 +193,21 @@ const PageItem = ({ isCompleted, isLocked, page }: PageItemProps) => {
       </VStack>
 
       <Box color="slate.600">
-        {isLocked ? (
-          <VStack spacing={1} mt={3} alignItems="flex-end">
-            <FiLock />
-            <Text fontSize="2xs">Disponível em 7h 15min</Text>
-          </VStack>
-        ) : (
-          <FiChevronRight />
-        )}
+        {match({ isLocked, isCompleted })
+          .with({ isLocked: true }, () => (
+            <VStack spacing={1} mt={3} alignItems="flex-end">
+              <FiLock />
+              <Text fontSize="2xs">Disponível em 7h 15min</Text>
+            </VStack>
+          ))
+          .with({ isCompleted: true }, () => (
+            <Box color="green.600">
+              <FiCheck />
+            </Box>
+          ))
+          .otherwise(() => (
+            <FiChevronRight />
+          ))}
       </Box>
     </HStack>
   );

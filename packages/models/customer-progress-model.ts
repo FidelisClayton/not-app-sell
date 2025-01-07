@@ -2,16 +2,23 @@ import mongoose, { model, Model, Schema } from "mongoose";
 
 export type CustomerProgress = {
   _id: string;
-  customer: Schema.Types.ObjectId; // Reference to Customer
-  product: Schema.Types.ObjectId; // Reference to Product
-  page: Schema.Types.ObjectId; // Reference to Page
+  customer: string; // Reference to Customer
+  product: string; // Reference to Product
+  page: string; // Reference to Page
   isCompleted: boolean; // Whether the page is completed
   completedAt?: Date; // Timestamp for when it was completed
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type CustomerProgressDocument = CustomerProgress;
+export type CustomerProgressDocument = Omit<
+  CustomerProgress,
+  "customer" | "product" | "page"
+> & {
+  customer: Schema.Types.ObjectId; // Reference to Customer
+  product: Schema.Types.ObjectId; // Reference to Product
+  page: Schema.Types.ObjectId; // Reference to Page
+};
 
 const CustomerProgressSchema = new Schema<CustomerProgressDocument>(
   {

@@ -19,9 +19,8 @@ const getAllByApp = async (appId: string) => {
 };
 
 const getOwned = async (customerId: string) => {
-  const ownedProducts = await CustomerProductModel.find({
-    customer: customerId,
-  }).populate<{ product: Product }>("product");
+  const ownedProducts =
+    await CustomerProductRepository.findActiveByCustomer(customerId);
 
   return ownedProducts.map((customerProduct) => customerProduct.product);
 };

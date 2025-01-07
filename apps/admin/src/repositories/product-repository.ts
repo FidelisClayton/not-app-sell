@@ -22,6 +22,12 @@ const getByExternalProductId = async (id: string) => {
     .lean<Product>();
 };
 
+const getAllByExternalProductId = async (id: string) => {
+  return ProductModel.find({ externalProductId: id })
+    .select("-__v")
+    .lean<Product[]>();
+};
+
 const create = async (data: z.infer<typeof CreateProductServerSchema>) => {
   return ProductModel.create(data);
 };
@@ -44,4 +50,5 @@ export const ProductRepository = {
   updateById,
   deleteById,
   getByExternalProductId,
+  getAllByExternalProductId,
 };

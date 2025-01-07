@@ -13,7 +13,8 @@ export default async function handler(
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
-  const { pageId } = req.body;
+  const query = req.query;
+  const pageId = query.pageId?.toString();
 
   if (!pageId) {
     return res.status(400).json({ error: "Missing required fields" });

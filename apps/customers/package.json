@@ -14,7 +14,12 @@
     "@chakra-ui/react": "^2.10.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@fontsource/geist-sans": "^5.1.0",
     "@hookform/resolvers": "^3.9.1",
+    "@shared/controllers": "*",
+    "@shared/lib": "*",
+    "@shared/repositories": "*",
+    "@shared/validation": "*",
     "@tanstack/react-query": "^5.62.8",
     "@tiptap/core": "^2.10.4",
     "@tiptap/extension-character-count": "^2.10.4",
@@ -63,11 +68,7 @@
     "y-prosemirror": "^1.2.15",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.21",
-    "zod": "^3.24.1",
-    "@shared/lib": "*",
-    "@shared/repositories": "*",
-    "@shared/validation": "*",
-    "@shared/controllers": "*"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

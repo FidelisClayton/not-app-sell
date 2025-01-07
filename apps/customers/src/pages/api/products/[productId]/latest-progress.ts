@@ -1,10 +1,9 @@
-// pages/api/progress/product-progress.ts
-import { NextApiRequest, NextApiResponse } from "next";
 import { fetchCustomer, validateSession } from "@/lib/auth";
 import { connectDB } from "@shared/lib/mongodb";
 import { CustomerProgressModel } from "@shared/models/customer-progress-model";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
+export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
@@ -15,16 +14,15 @@ export default async function handler(
   const sessionUser = await validateSession(req, res);
   const customer = await fetchCustomer(sessionUser.email!);
 
-  const { productId } = req.query;
-
-  if (!customer._id || !productId) {
+  if (!customer._id) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const customerProgress = await CustomerProgressModel.find({
-    product: productId,
+  const latestProgress = await CustomerProgressModel.findOne({
     customer: customer._id,
-  });
+  })
+    .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+    .lean(); // Use lean() if you only need the plain object
 
-  res.status(200).json(customerProgress);
+  return latestProgress;
 }

@@ -57,7 +57,6 @@ export const CustomerProductRepository = {
     productId: string,
     update: { isActive: boolean },
   ) {
-    console.log("upserting", customerId, productId);
     return CustomerProductModel.updateOne(
       { customer: customerId, product: productId }, // Match criteria
       { $set: update }, // Update or set new values

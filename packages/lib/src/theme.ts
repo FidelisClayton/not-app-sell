@@ -1,6 +1,16 @@
 import { extendTheme, StyleFunctionProps } from "@chakra-ui/react";
+import "@fontsource/geist-sans/400.css";
+import "@fontsource/geist-sans/500.css";
+import "@fontsource/geist-sans/600.css";
+import "@fontsource/geist-sans/700.css";
+import "@fontsource/geist-sans/800.css";
+import "@fontsource/geist-sans/900.css";
 
 export const colorsTheme = extendTheme({
+  fonts: {
+    heading: `'Geist Sans', sans-serif`,
+    body: `'Geist Sans', sans-serif`,
+  },
   colors: {
     brand: {
       50: "#f8fafc",

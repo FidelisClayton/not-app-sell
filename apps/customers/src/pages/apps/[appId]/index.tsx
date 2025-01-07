@@ -1,27 +1,19 @@
-import {
-  AspectRatio,
-  Box,
-  Button,
-  Center,
-  Grid,
-  Heading,
-  HStack,
-  Image,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { FiBookOpen, FiCompass, FiHome, FiUser } from "react-icons/fi";
+import { Box, Container, Grid, Heading, Image } from "@chakra-ui/react";
 import { GetProductsQuery } from "@/queries/get-products-query";
 import { useRouter } from "next/router";
 import { GetAppQuery } from "@/queries/get-app-query";
-import { FaLock } from "react-icons/fa";
 import { BottomMenu } from "@/components/bottom-menu";
 import { ProductCard } from "@/components/product-card";
 import { TopMenu } from "@/components/top-menu";
+import { GetLatestProductQuery } from "@/queries/get-latest-products-query";
+import { LatestProduct } from "@/components/latest-product";
+import Head from "next/head";
 
 export default function AppHomePreview() {
   const router = useRouter();
   const appId = router.query.appId as string;
+
+  const latestProductQuery = GetLatestProductQuery.useQuery();
 
   const appQuery = GetAppQuery.useQuery({ id: appId });
   const ownedProductsQuery = GetProductsQuery.useQuery({
@@ -36,56 +28,70 @@ export default function AppHomePreview() {
   if (!appQuery.data || !ownedProductsQuery.data) return null;
 
   return (
-    <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
-      <TopMenu />
+    <>
+      <Head>
+        {/* Link to tenant-specific manifest */}
+        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
+      </Head>
 
-      <Box w="full" overflowY="auto">
-        {appQuery.data.bannerUrl && (
-          <Image w="full" src={appQuery.data.bannerUrl} />
-        )}
+      <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
+        <TopMenu />
 
-        <Heading px="2" size="md" mt={4}>
-          Exclusivo para você
-        </Heading>
+        <Container maxW="sm" w="full" overflowY="auto">
+          {appQuery.data.bannerUrl && (
+            <Image mb="4" w="full" src={appQuery.data.bannerUrl} />
+          )}
 
-        {(ownedProductsQuery.data?.length ?? 0) > 0 && (
-          <Box
-            mt={2}
-            overflowX="auto"
-            display="flex"
-            scrollSnapType="x mandatory"
-            pb="4"
-          >
-            {ownedProductsQuery.data?.map((product) => (
-              <ProductCard key={product._id} product={product} isActive />
-            ))}
-          </Box>
-        )}
+          {latestProductQuery.data && (
+            <LatestProduct product={latestProductQuery.data} />
+          )}
 
-        <Heading px="2" size="md" mt={4}>
-          Conheça também
-        </Heading>
+          {(ownedProductsQuery.data?.length ?? 0) > 0 && (
+            <>
+              <Heading px="2" size="md" mt={4}>
+                Exclusivo para você
+              </Heading>
+              <Box
+                mt={2}
+                overflowX="auto"
+                display="flex"
+                scrollSnapType="x mandatory"
+                pb="4"
+                gap="2"
+              >
+                {ownedProductsQuery.data?.map((product) => (
+                  <ProductCard key={product._id} product={product} isActive />
+                ))}
+              </Box>
+            </>
+          )}
 
-        {(unownedProductsQuery.data?.length ?? 0) > 0 && (
-          <Box
-            mt={2}
-            overflowX="auto"
-            display="flex"
-            scrollSnapType="x mandatory"
-            pb="4"
-          >
-            {unownedProductsQuery.data?.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                isActive={false}
-              />
-            ))}
-          </Box>
-        )}
-      </Box>
+          {(unownedProductsQuery.data?.length ?? 0) > 0 && (
+            <>
+              <Heading px="2" size="md" mt={4}>
+                Conheça também
+              </Heading>
+              <Box
+                mt={2}
+                overflowX="auto"
+                display="flex"
+                scrollSnapType="x mandatory"
+                pb="4"
+              >
+                {unownedProductsQuery.data?.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    isActive={false}
+                  />
+                ))}
+              </Box>
+            </>
+          )}
+        </Container>
 
-      <BottomMenu />
-    </Grid>
+        {/* <BottomMenu /> */}
+      </Grid>
+    </>
   );
 }
