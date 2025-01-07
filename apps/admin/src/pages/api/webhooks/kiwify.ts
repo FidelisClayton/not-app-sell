@@ -52,6 +52,7 @@ export default async function handler(
     // Ensure customer exists
     let customer = await CustomerRepository.findByEmail(email);
     if (!customer) {
+      console.log("creating customer");
       customer = await CustomerRepository.create({
         name: fullName, // Use email prefix as a default name
         email,
@@ -63,9 +64,14 @@ export default async function handler(
       return res.status(400).json({ error: "User not created" });
     }
 
+    console.log("customer", customer);
+
     // Fetch the products and its associated app
     const products =
       await ProductRepository.getAllByExternalProductId(productId);
+
+    console.log("products", products);
+
     if (!products.length) {
       return res
         .status(404)
@@ -75,50 +81,42 @@ export default async function handler(
     for (const product of products) {
       const appId = product.app;
 
-      await new Promise((resolve) => {
-        match(eventType)
-          .with(WebhookEventName.OrderApproved, async () => {
-            // Grant access to the app
-            await CustomerAppRepository.upsert(customer._id, appId, {
-              isActive: true,
-            });
+      match(eventType)
+        .with(WebhookEventName.OrderApproved, async () => {
+          // Grant access to the app
+          await CustomerAppRepository.upsert(customer._id, appId, {
+            isActive: true,
+          });
 
-            // Grant access to the product
-            await CustomerProductRepository.upsert(customer._id, product._id, {
-              isActive: true,
-            });
-
-            resolve(null);
-          })
-          .with(
-            P.union(
-              WebhookEventName.OrderRefunded,
-              WebhookEventName.Chargeback,
-              WebhookEventName.SubscriptionCanceled,
-            ),
-            async () => {
-              await CustomerProductRepository.deactivate(
-                customer._id.toString(),
-                product._id.toString(),
-              );
-
-              resolve(null);
-            },
-          )
-          .with(WebhookEventName.SubscriptionRenewed, async () => {
-            await CustomerProductRepository.activate(
+          // Grant access to the product
+          await CustomerProductRepository.upsert(customer._id, product._id, {
+            isActive: true,
+          });
+        })
+        .with(
+          P.union(
+            WebhookEventName.OrderRefunded,
+            WebhookEventName.Chargeback,
+            WebhookEventName.SubscriptionCanceled,
+          ),
+          async () => {
+            await CustomerProductRepository.deactivate(
               customer._id.toString(),
               product._id.toString(),
             );
-            resolve(null);
-          })
-          .otherwise(() => {
-            resolve(null);
-            return res
-              .status(400)
-              .json({ error: `Unsupported event type: ${eventType}` });
-          });
-      });
+          },
+        )
+        .with(WebhookEventName.SubscriptionRenewed, async () => {
+          await CustomerProductRepository.activate(
+            customer._id.toString(),
+            product._id.toString(),
+          );
+        })
+        .otherwise(() => {
+          return res
+            .status(400)
+            .json({ error: `Unsupported event type: ${eventType}` });
+        });
     }
 
     return res.status(200).json({ success: true });
