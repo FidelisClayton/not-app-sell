@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { GetAppQuery } from "@/queries/get-app-query";
 import { colorsTheme } from "@shared/lib/theme";
+import Head from "next/head";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -41,63 +42,69 @@ export default function LoginPage() {
   if (!app) return <p>App não encontrado</p>;
 
   return (
-    <ChakraProvider
-      theme={extendTheme(colorsTheme, {
-        components: {
-          Input: {
-            defaultProps: {
-              colorScheme: app.colorScheme,
+    <>
+      <Head>
+        {/* Link to tenant-specific manifest */}
+        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
+      </Head>
+      <ChakraProvider
+        theme={extendTheme(colorsTheme, {
+          components: {
+            Input: {
+              defaultProps: {
+                colorScheme: app.colorScheme,
+              },
+            },
+            Button: {
+              defaultProps: {
+                colorScheme: app.colorScheme,
+              },
+            },
+            Link: {
+              defaultProps: {
+                colorScheme: app.colorScheme,
+              },
             },
           },
-          Button: {
-            defaultProps: {
-              colorScheme: app.colorScheme,
-            },
-          },
-          Link: {
-            defaultProps: {
-              colorScheme: app.colorScheme,
-            },
-          },
-        },
-      })}
-    >
-      <Container
-        maxW="md"
-        w="full"
-        centerContent
-        h="100vh"
-        alignItems="center"
-        justifyContent="center"
-        px="10"
+        })}
       >
-        <Stack gap="4" alignItems="center" justifyContent="center" w="full">
-          {app.logoUrl && <Image src={app.logoUrl} maxW="60px" />}
+        <Container
+          maxW="md"
+          w="full"
+          centerContent
+          h="100vh"
+          alignItems="center"
+          justifyContent="center"
+          px="10"
+        >
+          <Stack gap="4" alignItems="center" justifyContent="center" w="full">
+            {app.logoUrl && <Image src={app.logoUrl} maxW="60px" />}
 
-          <Stack w="full" gap={0} textAlign="center" mb={8}>
-            <Heading size="lg">{app.name}</Heading>
-            <Text color="gray.700">{app.description}</Text>
-          </Stack>
-
-          <VStack w="full" as="form" onSubmit={handleSubmit}>
-            <Stack w="full" spacing={5}>
-              <FormControl>
-                <FormLabel>E-mail</FormLabel>
-                <Input
-                  type="email"
-                  placeholder="Digite o seu e-mail"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </FormControl>
-
-              <Button type="submit" size="lg" fontSize="md" w="100%">
-                Entrar
-              </Button>
+            <Stack w="full" gap={0} textAlign="center" mb={8}>
+              <Heading size="lg">{app.name}</Heading>
+              <Text color="gray.700">{app.description}</Text>
             </Stack>
-          </VStack>
-        </Stack>
-      </Container>
-    </ChakraProvider>
+
+            <VStack w="full" as="form" onSubmit={handleSubmit}>
+              <Stack w="full" spacing={5}>
+                <FormControl>
+                  <FormLabel>E-mail</FormLabel>
+                  <Input
+                    type="email"
+                    placeholder="Digite o seu e-mail"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </FormControl>
+
+                <Button type="submit" size="lg" fontSize="md" w="100%">
+                  Entrar
+                </Button>
+              </Stack>
+            </VStack>
+          </Stack>
+        </Container>
+      </ChakraProvider>
+    </>
   );
 }
