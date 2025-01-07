@@ -27,5 +27,7 @@ export default async function handler(
     ),
   );
 
+  console.log(JSON.stringify(req.headers));
+
   return res.status(200).end();
 }
