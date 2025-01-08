@@ -6,11 +6,18 @@ import { ProductCard } from "@/components/product-card";
 import { TopMenu } from "@/components/top-menu";
 import { GetLatestProductQuery } from "@/queries/get-latest-products-query";
 import { LatestProduct } from "@/components/latest-product";
-import Head from "next/head";
 import { validateSession } from "@/lib/auth";
 import { GetServerSidePropsContext } from "next";
+import { PWAHead } from "@/components/pwa-head";
+import { attachCookiesToHttpClient } from "@shared/lib/http";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  attachCookiesToHttpClient(context.req.cookies);
+  const { appId } = context.query;
+
+  if (typeof appId !== "string") return {};
+
   try {
     const sessionUser = await validateSession(context.req, context.res);
     if (!sessionUser)
@@ -21,7 +28,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       };
 
-    return { props: {} };
+    const queryClient = new QueryClient();
+
+    await GetAppQuery.prefetchQuery(queryClient, { id: appId });
+
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
   } catch (e) {
     return {
       redirect: {
@@ -48,15 +63,13 @@ export default function AppHomePreview() {
     subscriptionStatus: "Inactive",
   });
 
-  if (!appQuery.data || !ownedProductsQuery.data) return null;
+  if (!appQuery.data) return null;
+
+  console.log(appQuery.data);
 
   return (
     <>
-      <Head>
-        {/* Link to tenant-specific manifest */}
-        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
-      </Head>
-
+      <PWAHead app={appQuery.data} />
       <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
         <TopMenu />
 

@@ -48,7 +48,7 @@ const generateImage = async ({
   return canvas.toBuffer("image/png");
 };
 
-export default async function handler(
+export async function handleSplashGeneration(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {

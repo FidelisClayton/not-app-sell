@@ -26,6 +26,7 @@ import { attachCookiesToHttpClient } from "@shared/lib/http";
 import { LoginMutation } from "@/mutations/login-mutation";
 import { match } from "ts-pattern";
 import { validateSession } from "@/lib/auth";
+import { PWAHead } from "@/components/pwa-head";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
@@ -124,10 +125,7 @@ export default function LoginPage({ csrfToken }: LoginPageProps) {
 
   return (
     <>
-      <Head>
-        {/* Link to tenant-specific manifest */}
-        <link rel="manifest" href={`/api/apps/${appId}/manifest.json`} />
-      </Head>
+      <PWAHead app={app} />
       <ChakraProvider
         theme={extendTheme(colorsTheme, {
           components: {
