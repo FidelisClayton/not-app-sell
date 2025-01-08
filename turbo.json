@@ -11,6 +11,9 @@
       "outputs": [
         ".next/**",
         "!.next/cache/**"
+      ],
+      "env": [
+        "MONGODB_URI"
       ]
     },
     "lint": {},
