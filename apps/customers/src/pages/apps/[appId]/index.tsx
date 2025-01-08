@@ -2,12 +2,37 @@ import { Box, Container, Grid, Heading, Image } from "@chakra-ui/react";
 import { GetProductsQuery } from "@/queries/get-products-query";
 import { useRouter } from "next/router";
 import { GetAppQuery } from "@/queries/get-app-query";
-import { BottomMenu } from "@/components/bottom-menu";
 import { ProductCard } from "@/components/product-card";
 import { TopMenu } from "@/components/top-menu";
 import { GetLatestProductQuery } from "@/queries/get-latest-products-query";
 import { LatestProduct } from "@/components/latest-product";
 import Head from "next/head";
+import { connectDB } from "@shared/lib/mongodb";
+import { validateSession } from "@/lib/auth";
+import { GetServerSidePropsContext } from "next";
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  await connectDB();
+  try {
+    const sessionUser = await validateSession(context.req, context.res);
+    if (!sessionUser)
+      return {
+        redirect: {
+          destination: `/apps/${context.params?.appId}/login`,
+          permanent: false,
+        },
+      };
+
+    return { props: {} };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/apps/${context.params?.appId}/login`,
+        permanent: false,
+      },
+    };
+  }
+}
 
 export default function AppHomePreview() {
   const router = useRouter();

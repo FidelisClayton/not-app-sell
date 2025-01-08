@@ -1,4 +1,4 @@
-import { getCsrfToken, signIn } from "next-auth/react";
+import { getCsrfToken } from "next-auth/react";
 import {
   Button,
   Container,
@@ -12,7 +12,6 @@ import {
   extendTheme,
   Image,
   VStack,
-  useToast,
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
@@ -26,8 +25,8 @@ import { connectDB } from "@shared/lib/mongodb";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { attachCookiesToHttpClient } from "@shared/lib/http";
 import { LoginMutation } from "@/mutations/login-mutation";
-import { parseUrl } from "next/dist/shared/lib/router/utils/parse-url";
 import { match } from "ts-pattern";
+import { validateSession } from "@/lib/auth";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
@@ -38,6 +37,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { appId } = context.query;
 
   if (typeof appId !== "string") return {};
+
+  try {
+    const sessionUser = await validateSession(context.req, context.res);
+
+    if (sessionUser)
+      return {
+        redirect: {
+          destination: `/apps/${context.params?.appId}`,
+          permanent: false,
+        },
+      };
+  } catch (e) {}
 
   const queryClient = new QueryClient();
 

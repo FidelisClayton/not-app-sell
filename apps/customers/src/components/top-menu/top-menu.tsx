@@ -1,7 +1,6 @@
 import { GetAppQuery } from "@/queries/get-app-query";
 import {
   Box,
-  Button,
   HStack,
   IconButton,
   Image,

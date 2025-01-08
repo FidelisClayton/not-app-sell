@@ -1,7 +1,11 @@
 import credentials from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import { getServerSession, NextAuthOptions } from "next-auth";
-import { NextApiRequest, NextApiResponse } from "next";
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
 import {
   CustomerAppRepository,
   CustomerRepository,
@@ -99,8 +103,8 @@ export const getSessionCustomer = async (
 };
 
 export const validateSession = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: NextApiRequest | GetServerSidePropsContext["req"],
+  res: NextApiResponse | GetServerSidePropsContext["res"],
 ) => {
   const session = await getServerSession(req, res, adminAuthOptions);
   if (!session?.user)

@@ -36,12 +36,7 @@ export namespace GetAppQuery {
     variables: Variables,
   ) => {
     return queryClient.prefetchQuery({
-      queryFn: () =>
-        queryFn(variables).then((res) => {
-          console.log(res);
-
-          return res;
-        }),
+      queryFn: () => queryFn(variables),
       queryKey: getQueryKey(variables),
     });
   };
