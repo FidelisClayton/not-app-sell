@@ -10,27 +10,27 @@ import Head from "next/head";
 import { validateSession } from "@/lib/auth";
 import { GetServerSidePropsContext } from "next";
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  try {
-    const sessionUser = await validateSession(context.req, context.res);
-    if (!sessionUser)
-      return {
-        redirect: {
-          destination: `/apps/${context.params?.appId}/login`,
-          permanent: false,
-        },
-      };
-
-    return { props: {} };
-  } catch (e) {
-    return {
-      redirect: {
-        destination: `/apps/${context.params?.appId}/login`,
-        permanent: false,
-      },
-    };
-  }
-}
+// export async function getServerSideProps(context: GetServerSidePropsContext) {
+//   try {
+//     const sessionUser = await validateSession(context.req, context.res);
+//     if (!sessionUser)
+//       return {
+//         redirect: {
+//           destination: `/apps/${context.params?.appId}/login`,
+//           permanent: false,
+//         },
+//       };
+//
+//     return { props: {} };
+//   } catch (e) {
+//     return {
+//       redirect: {
+//         destination: `/apps/${context.params?.appId}/login`,
+//         permanent: false,
+//       },
+//     };
+//   }
+// }
 
 export default function AppHomePreview() {
   const router = useRouter();
