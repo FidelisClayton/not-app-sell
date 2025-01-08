@@ -28,33 +28,33 @@ import { match } from "ts-pattern";
 import { validateSession } from "@/lib/auth";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  // attachCookiesToHttpClient(context.req.cookies);
+  attachCookiesToHttpClient(context.req.cookies);
 
   const csrfToken = await getCsrfToken(context);
 
-  // const { appId } = context.query;
-  //
-  // if (typeof appId !== "string") return {};
-  //
-  // try {
-  //   const sessionUser = await validateSession(context.req, context.res);
-  //
-  //   if (sessionUser)
-  //     return {
-  //       redirect: {
-  //         destination: `/apps/${context.params?.appId}`,
-  //         permanent: false,
-  //       },
-  //     };
-  // } catch (e) {}
-  //
-  // const queryClient = new QueryClient();
-  //
-  // await GetAppQuery.prefetchQuery(queryClient, { id: appId });
+  const { appId } = context.query;
+
+  if (typeof appId !== "string") return {};
+
+  try {
+    const sessionUser = await validateSession(context.req, context.res);
+
+    if (sessionUser)
+      return {
+        redirect: {
+          destination: `/apps/${context.params?.appId}`,
+          permanent: false,
+        },
+      };
+  } catch (e) {}
+
+  const queryClient = new QueryClient();
+
+  await GetAppQuery.prefetchQuery(queryClient, { id: appId });
 
   return {
     props: {
-      // dehydratedState: dehydrate(queryClient),
+      dehydratedState: dehydrate(queryClient),
       csrfToken,
     },
   };
