@@ -7,12 +7,10 @@ import { TopMenu } from "@/components/top-menu";
 import { GetLatestProductQuery } from "@/queries/get-latest-products-query";
 import { LatestProduct } from "@/components/latest-product";
 import Head from "next/head";
-import { connectDB } from "@shared/lib/mongodb";
 import { validateSession } from "@/lib/auth";
 import { GetServerSidePropsContext } from "next";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  await connectDB();
   try {
     const sessionUser = await validateSession(context.req, context.res);
     if (!sessionUser)

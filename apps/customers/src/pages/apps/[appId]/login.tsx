@@ -21,7 +21,6 @@ import { GetAppQuery } from "@/queries/get-app-query";
 import { colorsTheme } from "@shared/lib/theme";
 import Head from "next/head";
 import { GetServerSidePropsContext } from "next";
-import { connectDB } from "@shared/lib/mongodb";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { attachCookiesToHttpClient } from "@shared/lib/http";
 import { LoginMutation } from "@/mutations/login-mutation";
@@ -30,7 +29,6 @@ import { validateSession } from "@/lib/auth";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
-  await connectDB();
 
   const csrfToken = await getCsrfToken(context);
 
