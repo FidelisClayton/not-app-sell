@@ -5,11 +5,13 @@ import {
   HStack,
   IconButton,
   Image,
+  Spacer,
   StackProps,
 } from "@chakra-ui/react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FiChevronLeft } from "react-icons/fi";
+import { FiChevronLeft, FiLogOut } from "react-icons/fi";
 
 export type TopMenuProps = StackProps & {
   backLink?: string;
@@ -38,7 +40,7 @@ export const TopMenu = ({ backLink, ...props }: TopMenuProps) => {
       {backLink ? (
         <IconButton
           aria-label="Voltar"
-          variant="ghost"
+          variant="unstyled"
           colorScheme="green"
           color="white"
           as={Link}
@@ -50,17 +52,29 @@ export const TopMenu = ({ backLink, ...props }: TopMenuProps) => {
           }
         />
       ) : (
-        <Box />
+        <Spacer />
       )}
       {appQuery.data.logoUrl && (
-        <Image
-          w="12"
-          h="12"
-          src={appQuery.data.logoUrl}
-          alt={appQuery.data.name}
-        />
+        <Box flex="1">
+          <Image h="12" src={appQuery.data.logoUrl} alt={appQuery.data.name} />
+        </Box>
       )}
-      <Box />
+      <IconButton
+        aria-label="Voltar"
+        variant="ghost"
+        colorScheme="green"
+        color="white"
+        onClick={() => {
+          signOut({
+            callbackUrl: `/apps/${appId}/login`,
+          });
+        }}
+        icon={
+          <Box fontSize="lg">
+            <FiLogOut />
+          </Box>
+        }
+      />
     </HStack>
   );
 };

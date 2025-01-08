@@ -1,6 +1,10 @@
 import { http } from "@shared/lib/http";
 import { AppDocument } from "@shared/models/app-model";
-import { UseQueryOptions, useQuery as useRQQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  UseQueryOptions,
+  useQuery as useRQQuery,
+} from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 export namespace GetAppQuery {
@@ -24,6 +28,21 @@ export namespace GetAppQuery {
       queryKey: getQueryKey(variables),
       queryFn: () => queryFn(variables),
       enabled: Boolean(variables.id) && options.enabled !== false,
+    });
+  };
+
+  export const prefetchQuery = (
+    queryClient: QueryClient,
+    variables: Variables,
+  ) => {
+    return queryClient.prefetchQuery({
+      queryFn: () =>
+        queryFn(variables).then((res) => {
+          console.log(res);
+
+          return res;
+        }),
+      queryKey: getQueryKey(variables),
     });
   };
 }

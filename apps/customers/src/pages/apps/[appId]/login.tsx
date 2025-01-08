@@ -1,8 +1,6 @@
-import { signIn } from "next-auth/react";
+import { getCsrfToken, signIn } from "next-auth/react";
 import {
-  Box,
   Button,
-  Center,
   Container,
   Heading,
   Input,
@@ -14,32 +12,106 @@ import {
   extendTheme,
   Image,
   VStack,
+  useToast,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { GetAppQuery } from "@/queries/get-app-query";
 import { colorsTheme } from "@shared/lib/theme";
 import Head from "next/head";
+import { GetServerSidePropsContext } from "next";
+import { connectDB } from "@shared/lib/mongodb";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { attachCookiesToHttpClient } from "@shared/lib/http";
+import { LoginMutation } from "@/mutations/login-mutation";
+import { parseUrl } from "next/dist/shared/lib/router/utils/parse-url";
+import { match } from "ts-pattern";
 
-export default function LoginPage() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  attachCookiesToHttpClient(context.req.cookies);
+  await connectDB();
+
+  const csrfToken = await getCsrfToken(context);
+
+  const { appId } = context.query;
+
+  if (typeof appId !== "string") return {};
+
+  const queryClient = new QueryClient();
+
+  await GetAppQuery.prefetchQuery(queryClient, { id: appId });
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+      csrfToken,
+    },
+  };
+}
+
+export type LoginPageProps = {
+  csrfToken: string;
+};
+
+export default function LoginPage({ csrfToken }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const router = useRouter();
   const appId = router.query.appId?.toString();
 
   const appQuery = GetAppQuery.useQuery({ id: appId });
-  const app = appQuery.data;
+  const app = appQuery.data!;
+
+  const loginMutation = LoginMutation.useMutation({
+    onSuccess: () => {
+      router.push(`/apps/${appId}/`);
+    },
+  });
+
+  const errorMessage = useMemo(() => {
+    const url = loginMutation.error?.response?.data?.url;
+
+    if (!url) {
+      return null;
+    }
+
+    const parsedUrl = new URL(url);
+    const errorCode = parsedUrl.searchParams.get("error");
+
+    return match(errorCode)
+      .with("CredentialsSignin", () => (
+        <>
+          <Text fontWeight="semibold">Sua conta não foi encontrada</Text>
+          <Text fontSize="sm">
+            Por favor, entre em contato com o suporte do aplicativo.
+          </Text>
+        </>
+      ))
+      .otherwise(() => (
+        <>
+          <Text fontWeight="semibold">Não foi possível entrar</Text>
+          <Text fontSize="sm">
+            Se o error continuar, por favor entre em contato com o suporte do
+            aplicativo.{" "}
+          </Text>
+        </>
+      ));
+  }, [loginMutation.error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn("credentials", {
+    loginMutation.mutate({
       email,
-      appId: router.query.appId?.toString(),
-      callbackUrl: `/apps/${appId}`, // Redirect after login
+      appId: app._id,
+      callbackUrl: `/apps/${app._id}`, // Redirect after login
       basePath: `/api/auth`,
+      csrfToken,
+      json: true,
     });
   };
 
-  if (!app) return <p>App não encontrado</p>;
+  if (!app) return null;
 
   return (
     <>
@@ -100,6 +172,19 @@ export default function LoginPage() {
                 <Button type="submit" size="lg" fontSize="md" w="100%">
                   Entrar
                 </Button>
+
+                {errorMessage && (
+                  <Alert
+                    alignItems="flex-start"
+                    borderRadius="lg"
+                    status="error"
+                  >
+                    <AlertIcon />
+                    <VStack w="full" alignItems="stretch" spacing={0}>
+                      {errorMessage}
+                    </VStack>
+                  </Alert>
+                )}
               </Stack>
             </VStack>
           </Stack>
