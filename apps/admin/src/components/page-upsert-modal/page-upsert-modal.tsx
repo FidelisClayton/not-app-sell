@@ -74,6 +74,7 @@ export const PageUpsertModal = ({
             product: productId?.toString(),
             content: "",
             index,
+            coverUrl: null,
           },
     resolver: zodResolver(
       props.type === "update" ? UpdatePageClientSchema : CreatePageClientSchema,
@@ -145,9 +146,13 @@ export const PageUpsertModal = ({
                   </Box>
                 ) : (
                   <ImageUpload
-                    aspectRatio={210 / 297}
+                    aspectRatio={4 / 3}
                     onSuccess={async ({ objectUrl }) => {
-                      setValue("coverUrl", objectUrl);
+                      setValue("coverUrl", objectUrl, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
                     }}
                     isLoading={isLoading}
                   />
