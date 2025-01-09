@@ -93,7 +93,6 @@ export const LatestProduct = ({ product }: LatestProductProps) => {
 
       <Button
         w="full"
-        colorScheme="green"
         fontSize="sm"
         fontWeight="semibold"
         onClick={handleContinue}
@@ -101,13 +100,7 @@ export const LatestProduct = ({ product }: LatestProductProps) => {
         Continuar
       </Button>
 
-      <Progress
-        colorScheme="green"
-        w="full"
-        h={1}
-        borderRadius="md"
-        value={30}
-      />
+      <Progress w="full" h={1} borderRadius="md" value={30} />
     </VStack>
   );
 };

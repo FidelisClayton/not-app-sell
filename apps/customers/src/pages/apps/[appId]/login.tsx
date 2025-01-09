@@ -8,8 +8,6 @@ import {
   Text,
   FormControl,
   FormLabel,
-  ChakraProvider,
-  extendTheme,
   Image,
   VStack,
   Alert,
@@ -18,8 +16,6 @@ import {
 import { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { GetAppQuery } from "@/queries/get-app-query";
-import { colorsTheme } from "@shared/lib/theme";
-import Head from "next/head";
 import { GetServerSidePropsContext } from "next";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { attachCookiesToHttpClient } from "@shared/lib/http";
@@ -27,6 +23,7 @@ import { LoginMutation } from "@/mutations/login-mutation";
 import { match } from "ts-pattern";
 import { validateSession } from "@/lib/auth";
 import { PWAHead } from "@/components/pwa-head";
+import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
@@ -126,27 +123,7 @@ export default function LoginPage({ csrfToken }: LoginPageProps) {
   return (
     <>
       <PWAHead app={app} />
-      <ChakraProvider
-        theme={extendTheme(colorsTheme, {
-          components: {
-            Input: {
-              defaultProps: {
-                colorScheme: app.colorScheme,
-              },
-            },
-            Button: {
-              defaultProps: {
-                colorScheme: app.colorScheme,
-              },
-            },
-            Link: {
-              defaultProps: {
-                colorScheme: app.colorScheme,
-              },
-            },
-          },
-        })}
-      >
+      <ThemeProvider>
         <Container
           maxW="md"
           w="full"
@@ -196,7 +173,7 @@ export default function LoginPage({ csrfToken }: LoginPageProps) {
             </VStack>
           </Stack>
         </Container>
-      </ChakraProvider>
+      </ThemeProvider>
     </>
   );
 }

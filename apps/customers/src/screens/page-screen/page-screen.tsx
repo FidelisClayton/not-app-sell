@@ -125,7 +125,6 @@ export const PageScreen = () => {
             mt={4}
             w="full"
             borderRadius="xl"
-            colorScheme="green"
             size="lg"
             fontSize="sm"
             onClick={handleComplete}

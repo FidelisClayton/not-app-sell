@@ -11,6 +11,7 @@ import { GetServerSidePropsContext } from "next";
 import { PWAHead } from "@/components/pwa-head";
 import { attachCookiesToHttpClient } from "@shared/lib/http";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   attachCookiesToHttpClient(context.req.cookies);
@@ -65,69 +66,62 @@ export default function AppHomePreview() {
 
   if (!appQuery.data) return null;
 
-  console.log(appQuery.data);
-
   return (
     <>
       <PWAHead app={appQuery.data} />
-      <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
-        <TopMenu />
+      <ThemeProvider>
+        <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
+          <TopMenu />
 
-        <Container maxW="sm" w="full" overflowY="auto">
-          {appQuery.data.bannerUrl && (
-            <Image mb="4" w="full" src={appQuery.data.bannerUrl} />
-          )}
+          <Container maxW="sm" w="full" overflowY="auto">
+            {appQuery.data.bannerUrl && (
+              <Image mb="4" w="full" src={appQuery.data.bannerUrl} />
+            )}
 
-          {latestProductQuery.data && (
-            <LatestProduct product={latestProductQuery.data} />
-          )}
+            {latestProductQuery.data && (
+              <LatestProduct product={latestProductQuery.data} />
+            )}
 
-          {(ownedProductsQuery.data?.length ?? 0) > 0 && (
-            <>
-              <Heading px="2" size="md" mt={4}>
-                Exclusivo para você
-              </Heading>
-              <Box
-                mt={2}
-                overflowX="auto"
-                display="flex"
-                scrollSnapType="x mandatory"
-                pb="4"
-                gap="2"
-              >
-                {ownedProductsQuery.data?.map((product) => (
-                  <ProductCard key={product._id} product={product} isActive />
-                ))}
-              </Box>
-            </>
-          )}
+            {(ownedProductsQuery.data?.length ?? 0) > 0 && (
+              <>
+                <Heading px="2" size="md" mt={4}>
+                  Exclusivo para você
+                </Heading>
+                <Grid gridTemplateColumns="1fr 1fr" mt={2} pb="4" gap="2">
+                  {ownedProductsQuery.data?.map((product) => (
+                    <ProductCard key={product._id} product={product} isActive />
+                  ))}
+                </Grid>
+              </>
+            )}
 
-          {(unownedProductsQuery.data?.length ?? 0) > 0 && (
-            <>
-              <Heading px="2" size="md" mt={4}>
-                Conheça também
-              </Heading>
-              <Box
-                mt={2}
-                overflowX="auto"
-                display="flex"
-                scrollSnapType="x mandatory"
-                pb="4"
-              >
-                {unownedProductsQuery.data?.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    isActive={false}
-                  />
-                ))}
-              </Box>
-            </>
-          )}
-        </Container>
+            {(unownedProductsQuery.data?.length ?? 0) > 0 && (
+              <>
+                <Heading px="2" size="md" mt={4}>
+                  Conheça também
+                </Heading>
+                <Box
+                  mt={2}
+                  overflowX="auto"
+                  display="flex"
+                  scrollSnapType="x mandatory"
+                  pb="4"
+                >
+                  {unownedProductsQuery.data?.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      isActive={false}
+                    />
+                  ))}
+                </Box>
+              </>
+            )}
+          </Container>
 
-        {/* <BottomMenu /> */}
-      </Grid>
+          {/* <BottomMenu /> */}
+        </Grid>
+      </ThemeProvider>
     </>
   );
 }

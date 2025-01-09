@@ -1,6 +1,7 @@
 import { GetAppQuery } from "@/queries/get-app-query";
 import {
   Box,
+  Flex,
   HStack,
   IconButton,
   Image,
@@ -29,51 +30,54 @@ export const TopMenu = ({ backLink, ...props }: TopMenuProps) => {
       top="0"
       zIndex="10"
       justifyContent="space-between"
+      alignItems="center"
       borderBottomWidth="1px"
       borderBottomColor="gray.200"
       borderBottomStyle="solid"
-      bgColor={`${appQuery.data.colorScheme ?? "slate"}.500`}
+      bgColor="white"
       w="full"
       {...props}
     >
       {backLink ? (
-        <IconButton
-          aria-label="Voltar"
-          variant="unstyled"
-          colorScheme="green"
-          color="white"
-          as={Link}
-          href={backLink}
-          icon={
-            <Box fontSize="2xl">
-              <FiChevronLeft />
-            </Box>
-          }
-        />
+        <Flex justifyContent="flex-start" flex="1">
+          <IconButton
+            aria-label="Voltar"
+            variant="unstyled"
+            colorScheme="slate"
+            alignItems="center"
+            justifyContent="center"
+            as={Link}
+            href={backLink}
+            icon={<FiChevronLeft />}
+            fontSize="2xl"
+            display="flex"
+          />
+        </Flex>
       ) : (
         <Spacer />
       )}
       {appQuery.data.logoUrl && (
-        <Box flex="1">
+        <Flex justifyContent="center" alignItems="center" flex="1">
           <Image h="12" src={appQuery.data.logoUrl} alt={appQuery.data.name} />
-        </Box>
+        </Flex>
       )}
-      <IconButton
-        aria-label="Voltar"
-        variant="ghost"
-        colorScheme="green"
-        color="white"
-        onClick={() => {
-          signOut({
-            callbackUrl: `/apps/${appId}/login`,
-          });
-        }}
-        icon={
-          <Box fontSize="lg">
-            <FiLogOut />
-          </Box>
-        }
-      />
+      <Flex justifyContent="flex-end" flex="1">
+        <IconButton
+          aria-label="Voltar"
+          variant="ghost"
+          colorScheme="slate"
+          onClick={() => {
+            signOut({
+              callbackUrl: `/apps/${appId}/login`,
+            });
+          }}
+          icon={
+            <Box fontSize="lg">
+              <FiLogOut />
+            </Box>
+          }
+        />
+      </Flex>
     </HStack>
   );
 };

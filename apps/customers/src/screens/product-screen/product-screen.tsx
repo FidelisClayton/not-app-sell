@@ -79,11 +79,11 @@ export const ProductScreen = () => {
           </Text>
 
           <HStack
-            color="green.800"
+            color="brand.800"
             fontWeight="semibold"
             fontSize="sm"
             borderRadius="md"
-            bgColor="green.100"
+            bgColor="brand.100"
             px="2"
             py="1"
           >
@@ -125,7 +125,6 @@ export const ProductScreen = () => {
               w="full"
               borderRadius="3xl"
               size="lg"
-              colorScheme="green"
               fontSize="sm"
               onClick={handleContinue}
             >
@@ -165,7 +164,7 @@ const PageItem = ({ isCompleted, isLocked, page }: PageItemProps) => {
         h="10"
         borderWidth="2px"
         borderStyle={isCompleted ? "solid" : "dashed"}
-        borderColor={isCompleted ? "green.500" : "slate.400"}
+        borderColor={isCompleted ? "brand.500" : "slate.400"}
         borderRadius="full"
         display="flex"
         alignItems="center"
@@ -174,12 +173,12 @@ const PageItem = ({ isCompleted, isLocked, page }: PageItemProps) => {
         <Box
           w="8"
           h="8"
-          bgColor={isCompleted ? "green.500" : "slate.50"}
+          bgColor={isCompleted ? "brand.500" : "slate.50"}
           borderRadius="full"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          color={isCompleted ? "green.50" : "slate.400"}
+          color={isCompleted ? "brand.50" : "slate.400"}
         >
           <FiBook />
         </Box>
@@ -201,7 +200,7 @@ const PageItem = ({ isCompleted, isLocked, page }: PageItemProps) => {
             </VStack>
           ))
           .with({ isCompleted: true }, () => (
-            <Box color="green.600">
+            <Box color="brand.600">
               <FiCheck />
             </Box>
           ))

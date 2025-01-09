@@ -27,8 +27,6 @@ export const ProductCard = ({ product, isActive }: ProductCardProps) => {
       as={Link}
       href={`${router.asPath}/products/${product._id}`}
       key={product._id}
-      minW="40%"
-      maxW="40%"
       scrollSnapAlign="start"
       borderRadius="lg"
       borderWidth="1px"
