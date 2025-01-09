@@ -24,6 +24,7 @@ import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowLeft } from "react-icons/fa";
 import { z } from "zod";
+import { colorsTheme } from "@shared/lib/theme";
 
 export type AppUpsertProps = {
   onSubmit: (formValues: z.infer<typeof CreateAppSchema>) => void;
@@ -173,9 +174,11 @@ export const AppUpsert = ({
           <FormControl>
             <FormLabel size="sm">Esquema de cores</FormLabel>
             <Select {...register("colorScheme")}>
-              <option value="red">Red</option>
-              <option value="blue">Blue</option>
-              <option value="green">Green</option>
+              {Object.keys(colorsTheme.colors).map((color) => (
+                <option key={color} value={color}>
+                  {color}
+                </option>
+              ))}
             </Select>
           </FormControl>
 
