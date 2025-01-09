@@ -18,11 +18,13 @@ const getAllByApp = async (appId: string) => {
   return ProductModel.find({ app: appId }).select("-__v").lean<Product>();
 };
 
-const getOwned = async (customerId: string) => {
+const getOwned = async (customerId: string, appId: string) => {
   const ownedProducts =
     await CustomerProductRepository.findActiveByCustomer(customerId);
 
-  return ownedProducts.map((customerProduct) => customerProduct.product);
+  return ownedProducts
+    .map((customerProduct) => customerProduct.product)
+    .filter((product) => product.app.toString() === appId);
 };
 
 const getUnowned = async (customerId: string, appId: string) => {

@@ -38,7 +38,7 @@ const handleGetOwned = async (
   }
 
   try {
-    const products = await ProductRepository.getOwned(customer._id);
+    const products = await ProductRepository.getOwned(customer._id, appId);
 
     return res.status(200).json(products);
   } catch (e) {
