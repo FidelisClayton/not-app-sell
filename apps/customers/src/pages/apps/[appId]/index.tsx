@@ -70,7 +70,7 @@ export default function AppHomePreview() {
     <>
       <PWAHead app={appQuery.data} />
       <ThemeProvider>
-        <Grid h="100vh" gridTemplateRows="64px 1fr 64px" w="full">
+        <Grid h="100vh" gridTemplateRows="64px 1fr" w="full">
           <TopMenu />
 
           <Container maxW="sm" w="full" overflowY="auto">
@@ -100,13 +100,7 @@ export default function AppHomePreview() {
                 <Heading px="2" size="md" mt={4}>
                   Conheça também
                 </Heading>
-                <Box
-                  mt={2}
-                  overflowX="auto"
-                  display="flex"
-                  scrollSnapType="x mandatory"
-                  pb="4"
-                >
+                <Grid gridTemplateColumns="1fr 1fr" mt={2} pb="4" gap="2">
                   {unownedProductsQuery.data?.map((product) => (
                     <ProductCard
                       key={product._id}
@@ -114,7 +108,7 @@ export default function AppHomePreview() {
                       isActive={false}
                     />
                   ))}
-                </Box>
+                </Grid>
               </>
             )}
           </Container>

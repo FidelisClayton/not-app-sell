@@ -8,7 +8,6 @@ import {
   HStack,
   IconButton,
   Image,
-  Spacer,
   Text,
   useDisclosure,
   useToast,
@@ -18,12 +17,11 @@ import Link from "next/link";
 import {
   FaArrowLeft,
   FaChevronLeft,
-  FaChevronRight,
   FaCog,
   FaFile,
   FaFont,
-  FaHome,
   FaImage,
+  FaSquareFull,
   FaVimeo,
   FaYoutube,
 } from "react-icons/fa";
@@ -64,12 +62,18 @@ import { YoutubeBlock } from "@/components/blocks/youtube-block";
 import { VimeoBlock } from "@/components/blocks/vimeo-block";
 import { z } from "zod";
 import { GetAppQuery } from "@/queries/get-app-query";
+import { AlertBlock } from "@/components/blocks/alert-block";
 
 const BLOCKS = [
   {
     Icon: FaFont,
     label: "Texto",
     blockType: BlockType.Text,
+  },
+  {
+    Icon: FaSquareFull,
+    label: "Callout",
+    blockType: BlockType.Alert,
   },
   {
     Icon: FaImage,
@@ -257,6 +261,14 @@ export const ProductsScreen = () => {
         _id,
         type,
         content: "",
+        index,
+        page,
+      }))
+      .with({ blockType: BlockType.Alert }, ({ blockType: type }) => ({
+        _id,
+        type,
+        content: "",
+        status: "Neutral",
         index,
         page,
       }))
@@ -588,7 +600,7 @@ export const ProductsScreen = () => {
                   )}
 
                   {blocksQuery.data && (
-                    <VStack w="full" px="8">
+                    <VStack w="full" px="8" spacing={0}>
                       {blocksQuery.data.map((block) =>
                         match(block)
                           .with({ type: BlockType.Text }, (block) => (
@@ -612,6 +624,9 @@ export const ProductsScreen = () => {
                               <VimeoBlock key={block._id} block={block} />
                             ),
                           )
+                          .with({ type: BlockType.Alert }, (block) => (
+                            <AlertBlock key={block._id} block={block} />
+                          ))
                           .otherwise(() => null),
                       )}
                     </VStack>

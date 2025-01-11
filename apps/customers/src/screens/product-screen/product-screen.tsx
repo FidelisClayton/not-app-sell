@@ -91,7 +91,7 @@ export const ProductScreen = () => {
               <FiBookOpen />
             </Box>
 
-            <Text fontSize="xs">7 módulos</Text>
+            <Text fontSize="xs">{pagesQuery.data?.length} módulos</Text>
           </HStack>
 
           <Text>{productQuery.data.description}</Text>

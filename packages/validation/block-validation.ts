@@ -16,6 +16,13 @@ const TextBlockSchema = BlockBaseSchema.extend({
   content: z.string().nullable().or(z.literal("")),
 });
 
+// Alert Block
+const AlertBlockSchema = BlockBaseSchema.extend({
+  type: z.literal(BlockType.Alert),
+  content: z.string().nullable().or(z.literal("")),
+  status: z.string().nullish().or(z.literal("Neutral")),
+});
+
 // File Block
 const FileBlockSchema = BlockBaseSchema.extend({
   type: z.literal(BlockType.File),
@@ -48,6 +55,7 @@ const AudioBlockSchema = BlockBaseSchema.extend({
 
 export const BlockSchema = z.discriminatedUnion("type", [
   TextBlockSchema,
+  AlertBlockSchema,
   FileBlockSchema,
   ImageBlockSchema,
   VideoEmbedBlockSchema,
@@ -67,6 +75,12 @@ const BlockBaseCreateSchema = z.object({
 const TextBlockCreateSchema = BlockBaseCreateSchema.extend({
   type: z.literal(BlockType.Text),
   content: z.string().nullable().optional().or(z.literal("")),
+});
+
+const AlertBlockCreateSchema = BlockBaseCreateSchema.extend({
+  type: z.literal(BlockType.Alert),
+  content: z.string().nullable().or(z.literal("")),
+  status: z.string().nullish().or(z.literal("Neutral")),
 });
 
 const FileBlockCreateSchema = BlockBaseCreateSchema.extend({
@@ -96,6 +110,7 @@ const AudioBlockCreateSchema = BlockBaseCreateSchema.extend({
 // Combine into a discriminated union
 export const CreateBlockSchema = z.discriminatedUnion("type", [
   TextBlockCreateSchema,
+  AlertBlockCreateSchema,
   FileBlockCreateSchema,
   ImageBlockCreateSchema,
   VideoEmbedBlockCreateSchema,
@@ -107,6 +122,12 @@ const BlockBaseUpdateSchema = BlockBaseCreateSchema.partial();
 const TextBlockUpdateSchema = BlockBaseUpdateSchema.extend({
   type: z.literal(BlockType.Text),
   content: z.string().optional(),
+});
+
+const AlertBlockUpdateSchema = BlockBaseUpdateSchema.extend({
+  type: z.literal(BlockType.Alert),
+  content: z.string().optional(),
+  status: z.string().optional(),
 });
 
 const FileBlockUpdateSchema = BlockBaseUpdateSchema.extend({
@@ -138,6 +159,7 @@ const AudioBlockUpdateSchema = BlockBaseUpdateSchema.extend({
 // Combine into a discriminated union
 export const UpdateBlockSchema = z.discriminatedUnion("type", [
   TextBlockUpdateSchema,
+  AlertBlockUpdateSchema,
   FileBlockUpdateSchema,
   ImageBlockUpdateSchema,
   VideoEmbedBlockUpdateSchema,

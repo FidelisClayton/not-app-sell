@@ -8,6 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  console.log("PROGRESS");
   if (req.method !== "GET")
     return res.status(405).json({ error: "Method not allowed" });
 

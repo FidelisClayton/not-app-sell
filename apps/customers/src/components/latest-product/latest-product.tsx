@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Product } from "@shared/models/product-model";
 import { useRouter } from "next/router";
+import { useMemo } from "react";
 import { FiBookOpen } from "react-icons/fi";
 
 export type LatestProductProps = {
@@ -50,6 +51,15 @@ export const LatestProduct = ({ product }: LatestProductProps) => {
       );
     }
   };
+
+  const progressPct = useMemo(() => {
+    if (!progressQuery.data || !pagesQuery.data) return 0;
+
+    return (
+      progressQuery.data.filter((progress) => progress.isCompleted).length /
+      pagesQuery.data.length
+    );
+  }, [progressQuery, pagesQuery]);
 
   return (
     <VStack
@@ -100,7 +110,7 @@ export const LatestProduct = ({ product }: LatestProductProps) => {
         Continuar
       </Button>
 
-      <Progress w="full" h={1} borderRadius="md" value={30} />
+      <Progress w="full" h={1} borderRadius="md" value={progressPct * 100} />
     </VStack>
   );
 };

@@ -1,3 +1,5 @@
+import { GetPagesQuery } from "@/queries/get-pages-query";
+import { GetProductProgressQuery } from "@/queries/get-product-progress-query";
 import {
   AspectRatio,
   Box,
@@ -11,6 +13,7 @@ import {
 import { Product } from "@shared/models/product-model";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useMemo } from "react";
 import { FaLock } from "react-icons/fa";
 
 export type ProductCardProps = {
@@ -19,6 +22,28 @@ export type ProductCardProps = {
 };
 
 export const ProductCard = ({ product, isActive }: ProductCardProps) => {
+  const pagesQuery = GetPagesQuery.useQuery(
+    { productId: product._id },
+    { enabled: isActive },
+  );
+  const progressQuery = GetProductProgressQuery.useQuery(
+    {
+      productId: product._id,
+    },
+    { enabled: isActive },
+  );
+
+  const progressPct = useMemo(() => {
+    if (!pagesQuery.data || !progressQuery.data) {
+      return 0;
+    }
+
+    return (
+      progressQuery.data.filter((p) => p.isCompleted).length /
+      pagesQuery.data.length
+    );
+  }, [pagesQuery.data, progressQuery.data]);
+
   const router = useRouter();
   return (
     <VStack
@@ -69,7 +94,7 @@ export const ProductCard = ({ product, isActive }: ProductCardProps) => {
 
       <Spacer />
 
-      <Progress h={1} w="full" borderRadius="md" value={0} />
+      <Progress h={1} w="full" borderRadius="md" value={progressPct * 100} />
     </VStack>
   );
 };

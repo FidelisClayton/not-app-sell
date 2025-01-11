@@ -92,6 +92,14 @@ export const BlockWrapper = ({ block, children }: BlockWrapperProps) => {
                 index,
                 page,
               }))
+              .with({ blockType: BlockType.Alert }, ({ blockType: type }) => ({
+                _id,
+                type,
+                content: "",
+                status: "Info",
+                index,
+                page,
+              }))
               .with({ blockType: BlockType.Image }, ({ blockType: type }) => ({
                 _id,
                 type,

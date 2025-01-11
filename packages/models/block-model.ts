@@ -2,6 +2,7 @@ import mongoose, { Schema, model, Model } from "mongoose";
 
 export enum BlockType {
   Text = "Text",
+  Alert = "Alert",
   File = "File",
   Image = "Image",
   VideoEmbed = "VideoEmbed",
@@ -18,6 +19,12 @@ interface BlockLike {
 export interface TextBlock extends BlockLike {
   type: BlockType.Text;
   content: string;
+}
+
+export interface AlertBlock extends BlockLike {
+  type: BlockType.Alert;
+  content: string;
+  status: "Success" | "Info" | "Alert" | "Error" | "Neutral";
 }
 
 export interface FileBlock extends BlockLike {
@@ -48,6 +55,7 @@ export interface AudioBlock extends BlockLike {
 
 export type Block =
   | TextBlock
+  | AlertBlock
   | FileBlock
   | ImageBlock
   | VideoEmbedBlock
@@ -77,6 +85,11 @@ const BlockBaseSchema = new Schema(
 // Specific Block Schemas
 const TextBlockSchema = new Schema({
   content: { type: String, required: false, default: "" },
+});
+
+const AlertBlockSchema = new Schema({
+  content: { type: String, required: false, default: "" },
+  status: { type: String, required: false, default: "" },
 });
 
 const FileBlockSchema = new Schema({
@@ -111,6 +124,10 @@ export const BlockModel: Model<Block> =
 
 if (!BlockModel.discriminators?.[BlockType.Text]) {
   BlockModel?.discriminator?.(BlockType.Text, TextBlockSchema);
+}
+
+if (!BlockModel.discriminators?.[BlockType.Alert]) {
+  BlockModel?.discriminator?.(BlockType.Alert, AlertBlockSchema);
 }
 
 if (!BlockModel.discriminators?.[BlockType.File])

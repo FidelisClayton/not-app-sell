@@ -39,4 +39,10 @@ export namespace GetProductsQuery {
       queryFn: () => queryFn(variables),
     });
   };
+
+  export const invalidate = (queryClient: QueryClient, params: Variables) => {
+    return queryClient.invalidateQueries({
+      queryKey: getKey(params),
+    });
+  };
 }

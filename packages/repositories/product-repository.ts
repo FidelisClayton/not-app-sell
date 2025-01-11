@@ -4,9 +4,13 @@ import {
   UpdateProductServerSchema,
   Product,
   CustomerProductModel,
+  BlockModel,
+  PageModel,
 } from "@shared/models";
 import { z } from "zod";
 import { CustomerProductRepository } from "./customer-product-repository";
+import { PageRepository } from "./page-repository";
+import { BlockRepository } from "./block-repository";
 
 const getAll = async (userId: string, appId: string) => {
   return ProductModel.find({ createdBy: userId, app: appId })
@@ -65,7 +69,14 @@ const updateById = async (
 };
 
 const deleteById = async (id: string) => {
-  return ProductModel.findByIdAndDelete(id);
+  await ProductModel.findByIdAndDelete(id);
+  const pages = await PageModel.find({ product: id });
+  await BlockModel.deleteMany({
+    page: { $in: pages.map((page) => page._id.toString()) },
+  });
+  await PageModel.deleteMany({ product: id });
+
+  return;
 };
 
 export const ProductRepository = {

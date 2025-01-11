@@ -31,6 +31,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ImageUpload } from "../image-upload/image-upload";
 import { FaTrash } from "react-icons/fa";
+import { DeleteProductMutation } from "@/mutations/delete-product-mutation";
+import { GetProductsQuery } from "@/queries/get-products-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type ProductUpsertModalProps = (
   | {
@@ -53,6 +56,7 @@ export const ProductUpsertModal = ({
   ...props
 }: ProductUpsertModalProps) => {
   const { appId } = useRouter().query;
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -77,6 +81,15 @@ export const ProductUpsertModal = ({
 
   const { isOpen, onClose } = disclosure;
 
+  const deleteProductMutation = DeleteProductMutation.useMutation({
+    onSuccess: () => {
+      if (props.type === "update") {
+        onClose();
+        GetProductsQuery.invalidate(queryClient, { appId: props.product.app });
+      }
+    },
+  });
+
   const submit = useCallback(
     (
       formValues: z.infer<
@@ -89,6 +102,12 @@ export const ProductUpsertModal = ({
     },
     [],
   );
+
+  const handleDelete = useCallback(() => {
+    if (props.type === "update") {
+      deleteProductMutation.mutate({ productId: props.product._id });
+    }
+  }, []);
 
   register("coverUrl");
   const [coverUrl] = watch(["coverUrl"]);
@@ -155,6 +174,16 @@ export const ProductUpsertModal = ({
           </ModalBody>
 
           <ModalFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              colorScheme="red"
+              mr={3}
+              onClick={handleDelete}
+            >
+              Deletar
+            </Button>
+
             <Button type="button" variant="ghost" mr={3} onClick={onClose}>
               Fechar
             </Button>
