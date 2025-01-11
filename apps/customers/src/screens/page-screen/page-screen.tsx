@@ -1,3 +1,4 @@
+import { AlertBlock } from "@/components/blocks/alert-block";
 import { FileBlock } from "@/components/blocks/file-block";
 import { ImageBlock } from "@/components/blocks/image-block";
 import { TextBlock } from "@/components/blocks/text-block";
@@ -19,7 +20,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { BlockType } from "@shared/models/block-model";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { match } from "ts-pattern";
 
@@ -101,6 +101,9 @@ export const PageScreen = () => {
                 match(block)
                   .with({ type: BlockType.Text }, (block) => (
                     <TextBlock key={block._id} block={block} />
+                  ))
+                  .with({ type: BlockType.Alert }, (block) => (
+                    <AlertBlock key={block._id} block={block} />
                   ))
                   .with({ type: BlockType.Image }, (block) => (
                     <ImageBlock key={block._id} block={block} />
